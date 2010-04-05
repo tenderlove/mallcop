@@ -11,6 +11,7 @@ Hoe.spec 'mallcop' do
   self.history_file  = 'CHANGELOG.rdoc'
   self.extra_rdoc_files  = FileList['*.rdoc']
   self.spec_extras = { :extensions => ["ext/mallcop/extconf.rb"] }
+  self.testlib = :minitest
 
   extra_dev_deps << ['rake-compiler', '>= 0.4.1']
   Rake::ExtensionTask.new "mallcop", spec do |ext|
