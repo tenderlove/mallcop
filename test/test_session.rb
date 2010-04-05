@@ -52,5 +52,11 @@ class TestSession < MiniTest::Unit::TestCase
       private_key = File.expand_path @config['private_key']
       assert @session.userauth_publickey_fromfile @config['username'], public_key, private_key, ''
     end
+
+    it "opens channels" do
+      @session.start
+      @session.userauth_password @config['username'], @config['password']
+      assert MallCop::Channel === @session.open_channel
+    end
   end
 end

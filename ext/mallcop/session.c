@@ -109,6 +109,11 @@ static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_ke
   return Qtrue;
 }
 
+static VALUE open_channel(VALUE self)
+{
+  return allocate_channel_with_session(self);
+}
+
 void init_mallcop_session()
 {
   rb_cMallCopSession = rb_define_class_under(rb_mMallCop, "Session", rb_cObject);
@@ -118,6 +123,7 @@ void init_mallcop_session()
   rb_define_method(rb_cMallCopSession, "hostkey_hash", hostkey_hash, 1);
   rb_define_method(rb_cMallCopSession, "userauth_password", userauth_password, 2);
   rb_define_method(rb_cMallCopSession, "userauth_publickey_fromfile", userauth_publickey_fromfile, 4);
+  rb_define_method(rb_cMallCopSession, "open_channel", open_channel, 0);
   rb_define_private_method(rb_cMallCopSession, "userauth_list", userauth_list, 1);
   rb_define_const(rb_cMallCopSession, "HASH_SHA1", INT2FIX(LIBSSH2_HOSTKEY_HASH_SHA1));
 }

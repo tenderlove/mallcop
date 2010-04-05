@@ -7,7 +7,9 @@
 
 extern VALUE rb_mMallCop;
 extern VALUE rb_cMallCopSession;
+extern VALUE rb_cMallCopChannel;
 
 #include <session.h>
+#include <channel.h>
 
 #endif

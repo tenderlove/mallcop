@@ -8,4 +8,5 @@ void Init_mallcop()
 
   rb_mMallCop = rb_define_module("MallCop");
   init_mallcop_session();
+  init_mallcop_channel();
 }
