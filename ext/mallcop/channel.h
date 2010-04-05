@@ -1,10 +1,10 @@
-#ifndef MALLCOP_SESSION_H
-#define MALLCOP_SESSION_H
+#ifndef MALLCOP_CHANNEL_H
+#define MALLCOP_CHANNEL_H
 
 #include <mallcop.h>
 
 void init_mallcop_channel();
 
-VALUE allocate_channel_with_session(LIBSSH2_SESSION * session);
+VALUE MallCop_Wrap_Channel(VALUE session, LIBSSH2_CHANNEL * channel);
 
 #endif

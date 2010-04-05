@@ -9,21 +9,12 @@ static VALUE dealloc(LIBSSH2_CHANNEL *channel)
   // libssh2_channel_free(channel);
 }
 
-VALUE allocate_channel_with_session(VALUE rb_session)
+VALUE MallCop_Wrap_Channel(VALUE session, LIBSSH2_CHANNEL * channel)
 {
   VALUE rb_channel;
-  LIBSSH2_CHANNEL *channel;
-  LIBSSH2_SESSION *session;
-
-  Data_Get_Struct(rb_session, LIBSSH2_SESSION, session);
-
-  channel = libssh2_channel_open_session(session);
-
-  if (!channel) rb_raise(rb_eRuntimeError, "channel init failed");
 
   rb_channel = Data_Wrap_Struct(rb_cMallCopChannel, NULL, dealloc, channel);
-
-  rb_iv_set(rb_channel, "@session", rb_session);
+  rb_iv_set(rb_channel, "@session", session);
 
   return rb_channel;
 }

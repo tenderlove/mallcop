@@ -111,7 +111,15 @@ static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_ke
 
 static VALUE open_channel(VALUE self)
 {
-  return allocate_channel_with_session(self);
+  LIBSSH2_SESSION *session;
+  LIBSSH2_CHANNEL *channel;
+
+  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+
+  channel = libssh2_channel_open_session(session);
+  if (!channel) rb_raise(rb_eRuntimeError, "channel init failed");
+
+  return MallCop_Wrap_Channel(self, channel);
 }
 
 void init_mallcop_session()
