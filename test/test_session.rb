@@ -1,13 +1,13 @@
 require "minitest/spec"
 require "mallcop"
-require 'psych'
+require 'yaml'
 
 class TestSession < MiniTest::Unit::TestCase
   describe "a mallcop @session" do
     before do
       @c = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
       @c.connect(Socket.sockaddr_in(22, '127.0.0.1'))
-      @config = Psych.load_file File.join ENV['HOME'], '.mallcop_test'
+      @config = YAML.load_file File.join ENV['HOME'], '.mallcop_test'
       @session = MallCop::Session.new @c
     end
 
