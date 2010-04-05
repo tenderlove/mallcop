@@ -56,7 +56,7 @@ class TestSession < MiniTest::Unit::TestCase
     it "opens channels" do
       @session.start
       @session.userauth_password @config['username'], @config['password']
-      assert MallCop::Channel === @session.open_channel
+      assert_instance_of MallCop::Channel, @session.open_channel
     end
   end
 end
