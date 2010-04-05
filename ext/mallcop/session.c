@@ -1,5 +1,7 @@
 #include <mallcop.h>
 
+VALUE rb_cMallCopSession;
+
 static VALUE dealloc(LIBSSH2_SESSION *session)
 {
   libssh2_session_free(session);
@@ -109,13 +111,13 @@ static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_ke
 
 void init_mallcop_session()
 {
-  VALUE klass = rb_define_class_under(rb_mMallCop, "Session", rb_cObject);
-  rb_define_alloc_func(klass, allocate);
+  rb_cMallCopSession = rb_define_class_under(rb_mMallCop, "Session", rb_cObject);
+  rb_define_alloc_func(rb_cMallCopSession, allocate);
 
-  rb_define_method(klass, "start", start, 0);
-  rb_define_method(klass, "hostkey_hash", hostkey_hash, 1);
-  rb_define_method(klass, "userauth_password", userauth_password, 2);
-  rb_define_method(klass, "userauth_publickey_fromfile", userauth_publickey_fromfile, 4);
-  rb_define_private_method(klass, "userauth_list", userauth_list, 1);
-  rb_define_const(klass, "HASH_SHA1", INT2FIX(LIBSSH2_HOSTKEY_HASH_SHA1));
+  rb_define_method(rb_cMallCopSession, "start", start, 0);
+  rb_define_method(rb_cMallCopSession, "hostkey_hash", hostkey_hash, 1);
+  rb_define_method(rb_cMallCopSession, "userauth_password", userauth_password, 2);
+  rb_define_method(rb_cMallCopSession, "userauth_publickey_fromfile", userauth_publickey_fromfile, 4);
+  rb_define_private_method(rb_cMallCopSession, "userauth_list", userauth_list, 1);
+  rb_define_const(rb_cMallCopSession, "HASH_SHA1", INT2FIX(LIBSSH2_HOSTKEY_HASH_SHA1));
 }

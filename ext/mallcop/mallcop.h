@@ -6,6 +6,7 @@
 #include <libssh2.h>
 
 extern VALUE rb_mMallCop;
+extern VALUE rb_cMallCopSession;
 
 #include <session.h>
 
