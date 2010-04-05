@@ -58,6 +58,30 @@ static VALUE userauth_list(VALUE self, VALUE user)
   return rb_str_new2(list);
 }
 
+static VALUE userauth_password(VALUE self, VALUE user, VALUE password)
+{
+  LIBSSH2_SESSION *session;
+  int ret;
+
+  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+  ret = libssh2_userauth_password(session, StringValuePtr(user),
+      StringValuePtr(password));
+
+  if(ret) {
+    switch(ret) {
+      case LIBSSH2_ERROR_AUTHENTICATION_FAILED:
+      case LIBSSH2_ERROR_SOCKET_NONE:
+        return Qfalse;
+        break;
+      default:
+        rb_raise(rb_eRuntimeError, "authentication failed (%d)", ret);
+        break;
+    }
+  }
+
+  return Qtrue;
+}
+
 void init_mallcop_session()
 {
   VALUE klass = rb_define_class_under(rb_mMallCop, "Session", rb_cObject);
@@ -65,6 +89,7 @@ void init_mallcop_session()
 
   rb_define_method(klass, "start", start, 0);
   rb_define_method(klass, "hostkey_hash", hostkey_hash, 1);
+  rb_define_method(klass, "userauth_password", userauth_password, 2);
   rb_define_private_method(klass, "userauth_list", userauth_list, 1);
   rb_define_const(klass, "HASH_SHA1", INT2FIX(LIBSSH2_HOSTKEY_HASH_SHA1));
 }

@@ -33,5 +33,29 @@ class TestSession < MiniTest::Unit::TestCase
       assert_instance_of Array, list
       assert list.include?('publickey')
     end
+
+    ###
+    # For this test to pass, make sure sshd_config has:
+    #
+    #  PasswordAuthentication yes
+    it "logs in with username / password" do
+      session = MallCop::Session.new @c
+      session.start
+      hash = session.hostkey_hash MallCop::Session::HASH_SHA1
+      list = session.authlist_for @config['username']
+      assert session.userauth_password @config['username'], @config['password']
+    end
+
+    ###
+    # For this test to pass, make sure sshd_config has:
+    #
+    #  PasswordAuthentication yes
+    it "logs in fails with bad username / password" do
+      session = MallCop::Session.new @c
+      session.start
+      hash = session.hostkey_hash MallCop::Session::HASH_SHA1
+      list = session.authlist_for @config['username']
+      assert !session.userauth_password('foo', 'bar')
+    end
   end
 end
