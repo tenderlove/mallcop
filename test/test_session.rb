@@ -45,5 +45,12 @@ class TestSession < MiniTest::Unit::TestCase
       @session.start
       assert !@session.userauth_password('foo', 'bar')
     end
+
+    it "logs in with a public key" do
+      @session.start
+      public_key  = File.expand_path @config['public_key']
+      private_key = File.expand_path @config['private_key']
+      assert @session.userauth_publickey_fromfile @config['username'], public_key, private_key, ''
+    end
   end
 end

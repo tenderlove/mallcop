@@ -82,6 +82,31 @@ static VALUE userauth_password(VALUE self, VALUE user, VALUE password)
   return Qtrue;
 }
 
+static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_key, VALUE private_key, VALUE password)
+{
+  LIBSSH2_SESSION *session;
+  int ret;
+
+  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+  ret = libssh2_userauth_publickey_fromfile(session, StringValuePtr(user),
+          StringValuePtr(public_key), StringValuePtr(private_key),
+          StringValuePtr(password));
+
+  if(ret) {
+    switch(ret) {
+      case LIBSSH2_ERROR_AUTHENTICATION_FAILED:
+      case LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED:
+        return Qfalse;
+        break;
+      default:
+        rb_raise(rb_eRuntimeError, "authentication failed (%d)", ret);
+        break;
+    }
+  }
+
+  return Qtrue;
+}
+
 void init_mallcop_session()
 {
   VALUE klass = rb_define_class_under(rb_mMallCop, "Session", rb_cObject);
@@ -90,6 +115,7 @@ void init_mallcop_session()
   rb_define_method(klass, "start", start, 0);
   rb_define_method(klass, "hostkey_hash", hostkey_hash, 1);
   rb_define_method(klass, "userauth_password", userauth_password, 2);
+  rb_define_method(klass, "userauth_publickey_fromfile", userauth_publickey_fromfile, 4);
   rb_define_private_method(klass, "userauth_list", userauth_list, 1);
   rb_define_const(klass, "HASH_SHA1", INT2FIX(LIBSSH2_HOSTKEY_HASH_SHA1));
 }
