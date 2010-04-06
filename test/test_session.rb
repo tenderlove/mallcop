@@ -72,5 +72,11 @@ class TestSession < MiniTest::Unit::TestCase
       chan = open_channel
       assert chan.request_pty("vanilla")
     end
+
+    it "requests a shell" do
+      chan = open_channel
+      chan.request_pty("vanilla")
+      assert chan.shell
+    end
   end
 end

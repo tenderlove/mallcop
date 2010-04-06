@@ -42,9 +42,33 @@ static VALUE request_pty(VALUE self, VALUE term)
   return Qtrue;
 }
 
+static VALUE shell(VALUE self)
+{
+  LIBSSH2_CHANNEL *channel;
+  int ret;
+
+  Data_Get_Struct(self, LIBSSH2_CHANNEL, channel);
+
+  ret = libssh2_channel_shell(channel);
+
+  if (ret) {
+    switch(ret) {
+      case LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED:
+        return Qfalse;
+        break;
+      default:
+        rb_raise(rb_eRuntimeError, "Shell request failed (%d)", ret);
+        break;
+    }
+  }
+
+  return Qtrue;
+}
+
 void init_mallcop_channel()
 {
   rb_cMallCopChannel = rb_define_class_under(rb_mMallCop, "Channel", rb_cObject);
 
   rb_define_method(rb_cMallCopChannel, "request_pty", request_pty, 1);
+  rb_define_method(rb_cMallCopChannel, "shell", shell, 0);
 }
