@@ -65,10 +65,61 @@ static VALUE shell(VALUE self)
   return Qtrue;
 }
 
+static VALUE read(VALUE self)
+{
+  LIBSSH2_CHANNEL *channel;
+  char buffer[0x4000];
+  int count;
+
+  Data_Get_Struct(self, LIBSSH2_CHANNEL, channel);
+
+  count = libssh2_channel_read(channel, buffer, sizeof(buffer));
+
+  if (count > 0) {
+    return rb_str_new(&buffer, count);
+  } else {
+    rb_raise(rb_eRuntimeError, "Read failed with (%d)", count);
+    return Qnil;
+  }
+
+  return Qnil;
+}
+
+static VALUE write(VALUE self, VALUE string)
+{
+  LIBSSH2_CHANNEL *channel;
+  ssize_t ret;
+
+  Data_Get_Struct(self, LIBSSH2_CHANNEL, channel);
+
+  libssh2_channel_write(channel, StringValuePtr(string), RSTRING_LEN(string));
+
+  if (ret < 0) {
+    rb_raise(rb_eRuntimeError, "Write error (%d)", ret);
+  }
+
+  return Qtrue;
+}
+
+static VALUE send_eof(VALUE self)
+{
+  LIBSSH2_CHANNEL *channel;
+  int ret;
+
+  Data_Get_Struct(self, LIBSSH2_CHANNEL, channel);
+
+  ret = libssh2_channel_send_eof(channel);
+
+  return Qtrue;
+}
+
 void init_mallcop_channel()
 {
   rb_cMallCopChannel = rb_define_class_under(rb_mMallCop, "Channel", rb_cObject);
 
   rb_define_method(rb_cMallCopChannel, "request_pty", request_pty, 1);
   rb_define_method(rb_cMallCopChannel, "shell", shell, 0);
+  rb_define_method(rb_cMallCopChannel, "read", read, 0);
+  rb_define_method(rb_cMallCopChannel, "write", write, 1);
+  rb_define_method(rb_cMallCopChannel, "send_eof", send_eof, 0);
 }
