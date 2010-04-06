@@ -19,7 +19,17 @@ Hoe.spec 'mallcop' do
   end
 end
 
+namespace :test do
+  file "test/support/sshd/host" do
+    dir = File.expand_path("../test/support/sshd", __FILE__)
+    FileUtils.mkdir_p dir
+    sh "ssh-keygen -t dsa -f #{dir}/host -N ''"
+  end
+
+  task :files => "test/support/sshd/host"
+end
+
 Hoe.add_include_dirs('.')
-task :test => :compile
+task :test => [:compile, "test:files"]
 
 # vim: syntax=ruby

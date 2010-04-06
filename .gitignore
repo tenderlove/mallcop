@@ -1,3 +1,4 @@
 .DS_Store
 lib/mallcop/mallcop.bundle
+test/support/sshd/host*
 tmp
