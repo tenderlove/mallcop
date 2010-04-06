@@ -11,6 +11,16 @@ class TestSession < MiniTest::Unit::TestCase
       @session = MallCop::Session.new @c
     end
 
+    def start_and_authenticate
+      @session.start
+      @session.userauth_password @config['username'], @config['password']
+    end
+
+    def open_channel
+      start_and_authenticate
+      @session.open_channel
+    end
+
     it "starts" do
       @session.start
     end
@@ -54,9 +64,13 @@ class TestSession < MiniTest::Unit::TestCase
     end
 
     it "opens channels" do
-      @session.start
-      @session.userauth_password @config['username'], @config['password']
+      start_and_authenticate
       assert_instance_of MallCop::Channel, @session.open_channel
+    end
+
+    it "requests a PTY" do
+      chan = open_channel
+      assert chan.request_pty("vanilla")
     end
   end
 end
