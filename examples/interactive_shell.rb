@@ -23,18 +23,22 @@ end
 puts "=== Opening channel"
 chan = session.open_channel
 
-puts "=== Requesting PTY"
-unless chan.request_pty("xterm")
-  raise "PTY request failed"
-end
+if ENV['PTY']
+  puts "=== Requesting PTY"
+  unless chan.request_pty("vanilla")
+    raise "PTY request failed"
+  end
 
-puts "=== Starting shell"
-unless chan.shell
-  raise "Shell request failed"
+  puts "=== Starting shell"
+  unless chan.shell
+    raise "Shell request failed"
+  end
+else
+  puts "=== Executing BASH"
+  chan.channel_exec("bash -l")
 end
 
 C = chan
 
-# C.read # => read the prompt
 # C.write("pwd\n")
 # C.read
