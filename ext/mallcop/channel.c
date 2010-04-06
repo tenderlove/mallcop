@@ -65,6 +65,22 @@ static VALUE shell(VALUE self)
   return Qtrue;
 }
 
+static VALUE channel_exec(VALUE self, VALUE command)
+{
+  LIBSSH2_CHANNEL *channel;
+  int ret;
+
+  Data_Get_Struct(self, LIBSSH2_CHANNEL, channel);
+
+  ret = libssh2_channel_exec(channel, StringValuePtr(command));
+
+  if (ret) {
+    rb_raise(rb_eRuntimeError, "Channel exec failed (%d)", ret);
+  }
+
+  return Qtrue;
+}
+
 static VALUE read(VALUE self)
 {
   LIBSSH2_CHANNEL *channel;
@@ -119,6 +135,7 @@ void init_mallcop_channel()
 
   rb_define_method(rb_cMallCopChannel, "request_pty", request_pty, 1);
   rb_define_method(rb_cMallCopChannel, "shell", shell, 0);
+  rb_define_method(rb_cMallCopChannel, "channel_exec", channel_exec, 1);
   rb_define_method(rb_cMallCopChannel, "read", read, 0);
   rb_define_method(rb_cMallCopChannel, "write", write, 1);
   rb_define_method(rb_cMallCopChannel, "send_eof", send_eof, 0);
