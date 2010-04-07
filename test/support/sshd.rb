@@ -14,12 +14,16 @@ module Helpers
       File.expand_path("../../../", __FILE__)
     end
 
+    def sshd_support
+      "#{root}/test/support/sshd"
+    end
+
     def tmp
       "#{root}/tmp/testing"
     end
 
     def host_file
-      "#{root}/test/support/sshd/host"
+      "#{sshd_support}/host"
     end
 
     def sshd_config_file
@@ -31,7 +35,7 @@ module Helpers
     end
 
     def sshd_config
-      template = File.read("#{root}/test/support/sshd/sshd_config.erb")
+      template = File.read("#{sshd_support}/sshd_config.erb")
       ERB.new(template, nil, '-').result(binding)
     end
 

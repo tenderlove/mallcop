@@ -7,7 +7,7 @@ module MallCop
 
   def self.interactive(host, username, options = {})
     socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
-    socket.connect(Socket.sockaddr_in(22, host))
+    socket.connect(Socket.sockaddr_in(options[:port] || 22, host))
     session = Session.new(socket)
     session.start
     session.userauth_password username, options[:password]
