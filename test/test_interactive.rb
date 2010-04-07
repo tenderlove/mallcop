@@ -24,4 +24,12 @@ describe "interactive" do
     end
   end
 
+  it "runs commands" do
+    MallCop.interactive "127.0.0.1", username, :password => password do |c|
+      c.write "cd #{root}\n"
+      c.write "pwd\n"
+      assert_equal root, c.read.strip
+    end
+  end
+
 end

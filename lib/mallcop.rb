@@ -11,6 +11,9 @@ module MallCop
     session = Session.new(socket)
     session.start
     session.userauth_password username, options[:password]
-    yield session.open_channel
+    chan = session.open_channel
+    chan.channel_exec("bash -l")
+    yield chan if block_given?
+    chan
   end
 end

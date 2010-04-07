@@ -38,7 +38,7 @@ namespace :test do
         # === Create the user
         sh %'sudo dscl . create /Users/_mallcop UniqueID #{id}'
         sh %'sudo dscl . create /Users/_mallcop PrimaryGroupID #{id}'
-        sh %'sudo dscl . create /Users/_mallcop NFSHomeDirectory #{ENV['HOME']}'
+        sh %'sudo dscl . create /Users/_mallcop NFSHomeDirectory #{ROOT}'
         sh %'sudo dscl . create /Users/_mallcop RealName "MallCop Test User 1"'
         sh %'sudo dscl . passwd /Users/_mallcop "#{password}"'
         sh %'sudo dscl . append /Users/_mallcop RecordName mallcop'
