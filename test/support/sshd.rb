@@ -40,7 +40,7 @@ module Helpers
     end
 
     def cleanup_sshd
-      pid = sshd_pid and Process.kill 9, pid
+      pid = sshd_pid and system("sudo kill -9 #{pid}")
     rescue Errno::ESRCH
       nil
     ensure
@@ -55,11 +55,10 @@ module Helpers
 
     def sshd
       setup_sshd
-      f = IO.popen "#{`which sshd`.strip} -D -h #{host_file} -f #{sshd_config_file}"
+      system "sudo #{`which sshd`.strip} -D -h #{host_file} -f #{sshd_config_file} &"
       until File.exist?(sshd_pid_file)
         sleep 0.1
       end
-      f
     end
 
     def sshd_pid

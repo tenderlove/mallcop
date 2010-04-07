@@ -1,18 +1,16 @@
-require "minitest/spec"
-require "mallcop"
-require 'yaml'
+require "helper"
 
 describe "a mallcop @session" do
   before do
+    sshd
     @c = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
-    @c.connect(Socket.sockaddr_in(22, '127.0.0.1'))
-    @config = YAML.load_file File.join ENV['HOME'], '.mallcop_test'
+    @c.connect(Socket.sockaddr_in(9391, '127.0.0.1'))
     @session = MallCop::Session.new @c
   end
 
   def start_and_authenticate
     @session.start
-    @session.userauth_password @config['username'], @config['password']
+    @session.userauth_password username, password
   end
 
   def open_channel
@@ -32,24 +30,16 @@ describe "a mallcop @session" do
 
   it "returns a list of authentication schemes" do
     @session.start
-    list = @session.authlist_for @config['username']
+    list = @session.authlist_for username
     assert_instance_of Array, list
     assert list.include?('publickey')
   end
 
-  ###
-  # For this test to pass, make sure sshd_config has:
-  #
-  #  PasswordAuthentication yes
   it "logs in with username / password" do
     @session.start
-    assert @session.userauth_password @config['username'], @config['password']
+    assert @session.userauth_password username, password
   end
 
-  ###
-  # For this test to pass, make sure sshd_config has:
-  #
-  #  PasswordAuthentication yes
   it "logs in fails with bad username / password" do
     @session.start
     assert !@session.userauth_password('foo', 'bar')
@@ -57,9 +47,9 @@ describe "a mallcop @session" do
 
   it "logs in with a public key" do
     @session.start
-    public_key  = File.expand_path @config['public_key']
-    private_key = File.expand_path @config['private_key']
-    assert @session.userauth_publickey_fromfile @config['username'], public_key, private_key, ''
+    public_key  = "#{sshd_support}/client.pub"
+    private_key = "#{sshd_support}/client"
+    assert @session.userauth_publickey_fromfile username, public_key, private_key, ''
   end
 
   it "opens channels" do

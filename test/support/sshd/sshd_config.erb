@@ -1,4 +1,6 @@
 Port 9391
 Protocol 2
+StrictModes no
 PasswordAuthentication yes
+AuthorizedKeysFile <%= sshd_support %>/client.pub
 PidFile <%= sshd_pid_file %>
