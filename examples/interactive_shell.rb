@@ -1,6 +1,7 @@
-# Load this file with IRB
+# Load this file with IRB:
+#
+#   $ irb -I lib examples/interactive_shell.rb
 
-$:.unshift File.expand_path('../../lib', __FILE__)
 require 'mallcop'
 
 # "72.233.42.42", "carllerche"
@@ -16,7 +17,7 @@ session = MallCop::Session.new @c
 puts "=== Starting SSH session"
 session.start
 puts "=== Authenticating from public key"
-unless session.userauth_publickey_fromfile('carllerche', public_key, private_key, '')
+unless session.userauth_publickey_fromfile(ENV['USER'], public_key, private_key, '')
   raise "Authentication failed"
 end
 
