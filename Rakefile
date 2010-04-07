@@ -6,7 +6,7 @@ require 'hoe'
 gem 'rake-compiler', '>= 0.4.1'
 require "rake/extensiontask"
 
-Dir[File.expand_path('../tasks/**/*.rake',  __FILE__)].each do |file|
+Dir[File.expand_path('../tasks/**/*.rb',  __FILE__)].each do |file|
   load file
 end
 
