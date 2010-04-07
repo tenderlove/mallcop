@@ -7,7 +7,7 @@ gem 'rake-compiler', '>= 0.4.1'
 require "rake/extensiontask"
 
 Dir[File.expand_path('../tasks/**/*.rb',  __FILE__)].each do |file|
-  load file
+  require file
 end
 
 Hoe.spec 'mallcop' do
