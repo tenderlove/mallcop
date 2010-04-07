@@ -61,5 +61,17 @@ module Helpers
     def sshd_pid
       File.exist?(sshd_pid_file) && File.read(sshd_pid_file).to_i
     end
+
+    def config
+      @config ||= YAML.load_file "#{root}/.mallcop_user"
+    end
+
+    def username
+      config['username']
+    end
+
+    def password
+      config['password']
+    end
   end
 end
