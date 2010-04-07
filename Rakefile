@@ -1,9 +1,14 @@
 # -*- ruby -*-
 
+require 'yaml'
 require 'rubygems'
 require 'hoe'
 gem 'rake-compiler', '>= 0.4.1'
 require "rake/extensiontask"
+
+Dir[File.expand_path('../tasks/**/*.rake',  __FILE__)].each do |file|
+  load file
+end
 
 Hoe.spec 'mallcop' do
   developer('Aaron Patterson', 'aaron@tenderlovemaking.com')
@@ -19,17 +24,8 @@ Hoe.spec 'mallcop' do
   end
 end
 
-namespace :test do
-  file "test/support/sshd/host" do
-    dir = File.expand_path("../test/support/sshd", __FILE__)
-    FileUtils.mkdir_p dir
-    sh "ssh-keygen -t dsa -f #{dir}/host -N ''"
-  end
-
-  task :files => "test/support/sshd/host"
-end
-
 Hoe.add_include_dirs('.')
 task :test => [:compile, "test:files"]
 
+ROOT = File.expand_path('../', __FILE__)
 # vim: syntax=ruby

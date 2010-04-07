@@ -2,3 +2,4 @@
 lib/mallcop/mallcop.bundle
 test/support/sshd/host*
 tmp
+.mallcop_user
