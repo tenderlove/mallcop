@@ -17,10 +17,16 @@ def create_config(user, password)
 end
 
 namespace :test do
+  dir = File.expand_path("../../test/support/sshd", __FILE__)
+
   file "test/support/sshd/host" do
-    dir = File.expand_path("../../test/support/sshd", __FILE__)
     FileUtils.mkdir_p dir
     sh "ssh-keygen -t dsa -f #{dir}/host -N ''"
+  end
+
+  file "test/support/sshd/client" do
+    FileUtils.mkdir_p dir
+    sh "ssh-keygen -t dsa -f #{dir}/client -N ''"
   end
 
   if osx?
@@ -62,5 +68,5 @@ namespace :test do
     end
   end
 
-  task :files => "test/support/sshd/host"
+  task :files => ["test/support/sshd/host", "test/support/sshd/client"]
 end

@@ -1,5 +1,6 @@
 .DS_Store
 lib/mallcop/mallcop.bundle
 test/support/sshd/host*
+test/support/sshd/client*
 tmp
 .mallcop_user
