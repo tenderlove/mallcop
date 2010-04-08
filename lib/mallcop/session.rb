@@ -1,5 +1,10 @@
 module MallCop
   class Session
+
+    def self.start host, port
+      new(host, port).start
+    end
+
     ###
     # Create a new MallCop::Session bound to +socket+
     def initialize host, port
