@@ -17,15 +17,13 @@ static VALUE allocate(VALUE klass)
   return Data_Wrap_Struct(klass, 0, dealloc, session);
 }
 
-static VALUE start(VALUE self)
+static VALUE start(VALUE self, VALUE sock)
 {
   LIBSSH2_SESSION *session;
-  VALUE sock;
   rb_io_t *fptr;
 
   Data_Get_Struct(self, LIBSSH2_SESSION, session);
 
-  sock = rb_iv_get(self, "@socket");
   GetOpenFile(sock, fptr);
 
   if(libssh2_session_startup(session, fptr->fd))
@@ -127,7 +125,7 @@ void init_mallcop_session()
   rb_cMallCopSession = rb_define_class_under(rb_mMallCop, "Session", rb_cObject);
   rb_define_alloc_func(rb_cMallCopSession, allocate);
 
-  rb_define_method(rb_cMallCopSession, "start", start, 0);
+  rb_define_private_method(rb_cMallCopSession, "native_start", start, 1);
   rb_define_method(rb_cMallCopSession, "hostkey_hash", hostkey_hash, 1);
   rb_define_method(rb_cMallCopSession, "userauth_password", userauth_password, 2);
   rb_define_method(rb_cMallCopSession, "userauth_publickey_fromfile", userauth_publickey_fromfile, 4);

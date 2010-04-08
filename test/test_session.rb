@@ -3,9 +3,7 @@ require "helper"
 describe "a mallcop @session" do
   before do
     sshd
-    @c = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
-    @c.connect(Socket.sockaddr_in(9391, '127.0.0.1'))
-    @session = MallCop::Session.new @c
+    @session = MallCop::Session.new '127.0.0.1', 9391
   end
 
   def start_and_authenticate

@@ -9,11 +9,7 @@ require 'mallcop'
 public_key  = File.expand_path("~/.ssh/id_dsa.pub")
 private_key = File.expand_path("~/.ssh/id_dsa")
 
-@c = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
-puts "=== Connecting to localhost"
-@c.connect(Socket.sockaddr_in(22, '127.0.0.1'))
-
-session = MallCop::Session.new @c
+session = MallCop::Session.new '127.0.0.1', 22
 puts "=== Starting SSH session"
 session.start
 puts "=== Authenticating from public key"
