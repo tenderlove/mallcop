@@ -8,7 +8,16 @@ module MallCop
     end
 
     def start
-      native_start socket
+      case native_start(socket)
+      when ERROR_SOCKET_NONE       then raise "The socket is invalid"
+      when ERROR_BANNER_SEND       then raise "Unable to send banner to remote host"
+      when ERROR_KEX_FAILURE       then raise "Encryption key exchange with the remote host failed"
+      when ERROR_SOCKET_SEND       then raise "Unable to send data on socket"
+      when ERROR_SOCKET_DISCONNECT then raise "The socket was disconnected"
+      when ERROR_PROTO             then raise "An invalid SSH protocol response was received on the socket"
+      when ERROR_EAGAIN            then raise "Marked for non-blocking I/O but the call would block"
+      end
+
       self
     end
 

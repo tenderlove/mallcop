@@ -26,10 +26,7 @@ static VALUE start(VALUE self, VALUE sock)
 
   GetOpenFile(sock, fptr);
 
-  if(libssh2_session_startup(session, fptr->fd))
-    rb_raise(rb_eRuntimeError, "session startup failed");
-
-  return self;
+  return INT2FIX(libssh2_session_startup(session, fptr->fd));
 }
 
 static VALUE hostkey_hash(VALUE self, VALUE hashtype)
