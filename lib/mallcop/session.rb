@@ -30,6 +30,10 @@ module MallCop
       userauth_list(user).split ','
     end
 
+    def open_channel
+      native_open_channel
+    end
+
   private
 
     def socket
