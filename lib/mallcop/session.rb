@@ -31,7 +31,13 @@ module MallCop
     end
 
     def open_channel
-      native_open_channel
+      case channel_or_error = native_open_channel
+      when ERROR_ALLOC           then raise "An internal memory allocation call failed"
+      when ERROR_SOCKET_SEND     then raise "Unable to send data on socket"
+      when ERROR_CHANNEL_FAILURE then raise "The channel failed"
+      when ERROR_EAGAIN          then raise "Marked for non-blocking I/O but the call would block"
+      end
+      channel_or_error
     end
 
   private

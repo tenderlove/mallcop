@@ -112,9 +112,12 @@ static VALUE open_channel(VALUE self)
   Data_Get_Struct(self, LIBSSH2_SESSION, session);
 
   channel = libssh2_channel_open_session(session);
-  if (!channel) rb_raise(rb_eRuntimeError, "channel init failed");
 
-  return MallCop_Wrap_Channel(self, channel);
+  if (channel > 0) {
+    return MallCop_Wrap_Channel(self, channel);
+  } else {
+    return INT2FIX(channel);
+  }
 }
 
 void init_mallcop_session()
