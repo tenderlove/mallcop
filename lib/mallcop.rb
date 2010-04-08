@@ -9,7 +9,7 @@ module MallCop
     session = Session.start(host, options[:port] || 22)
     session.userauth_password username, options[:password]
     chan = session.open_channel
-    chan.channel_exec("bash -l")
+    chan.shell
     yield chan if block_given?
     chan
   end
