@@ -1,4 +1,3 @@
-require 'socket'
 require 'mallcop/mallcop'
 require 'mallcop/session'
 
