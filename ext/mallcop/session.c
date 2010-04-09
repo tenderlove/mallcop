@@ -127,9 +127,9 @@ void init_mallcop_session()
 
   rb_define_private_method(rb_cMallCopSession, "native_start", start, 1);
   rb_define_private_method(rb_cMallCopSession, "native_open_channel", open_channel, 0);
+  rb_define_private_method(rb_cMallCopSession, "native_userauth_list", userauth_list, 1);
   rb_define_method(rb_cMallCopSession, "hostkey_hash", hostkey_hash, 1);
   rb_define_method(rb_cMallCopSession, "userauth_password", userauth_password, 2);
   rb_define_method(rb_cMallCopSession, "userauth_publickey_fromfile", userauth_publickey_fromfile, 4);
-  rb_define_private_method(rb_cMallCopSession, "userauth_list", userauth_list, 1);
   rb_define_const(rb_cMallCopSession, "HASH_SHA1", INT2FIX(LIBSSH2_HOSTKEY_HASH_SHA1));
 }

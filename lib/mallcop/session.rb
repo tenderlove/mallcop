@@ -53,6 +53,5 @@ module MallCop
     def authlist_for user
       userauth_list(user).split ','
     end
-
   end
 end
