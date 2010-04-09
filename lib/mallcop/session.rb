@@ -7,8 +7,6 @@ module MallCop
       new(host, port).start
     end
 
-    ###
-    # Create a new MallCop::Session bound to +socket+
     def initialize host, port
       @host = host
       @port = port
