@@ -117,6 +117,15 @@ static VALUE write(VALUE self, VALUE string)
   return Qtrue;
 }
 
+static VALUE eof(VALUE self)
+{
+  LIBSSH2_CHANNEL *channel;
+
+  Data_Get_Struct(self, LIBSSH2_CHANNEL, channel);
+
+  return libssh2_channel_eof(channel) ? Qtrue : Qfalse;
+}
+
 static VALUE send_eof(VALUE self)
 {
   LIBSSH2_CHANNEL *channel;
@@ -132,6 +141,8 @@ static VALUE send_eof(VALUE self)
 void init_mallcop_channel()
 {
   rb_cMallCopChannel = rb_define_class_under(rb_mMallCop, "Channel", rb_cObject);
+
+  rb_define_private_method(rb_cMallCopChannel, "native_eof?", eof, 0);
 
   rb_define_method(rb_cMallCopChannel, "request_pty", request_pty, 1);
   rb_define_method(rb_cMallCopChannel, "shell", shell, 0);
