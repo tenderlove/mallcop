@@ -10,7 +10,9 @@ extern VALUE rb_mMallCopErrors;
 extern VALUE rb_cMallCopSession;
 extern VALUE rb_cMallCopChannel;
 
-#include <session.h>
-#include <channel.h>
+void init_mallcop_channel();
+void init_mallcop_session();
+
+VALUE MallCop_Wrap_Channel(VALUE session, LIBSSH2_CHANNEL * channel);
 
 #endif
