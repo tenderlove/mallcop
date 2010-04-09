@@ -113,10 +113,10 @@ static VALUE open_channel(VALUE self)
 
   channel = libssh2_channel_open_session(session);
 
-  if (channel > 0) {
+  if (channel) {
     return MallCop_Wrap_Channel(self, channel);
   } else {
-    return INT2FIX(channel);
+    return Qnil;
   }
 }
 

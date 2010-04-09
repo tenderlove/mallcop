@@ -5,7 +5,9 @@ module MallCop
     include Errors
 
     def self.start host, port
-      new(host, port).start
+      session = new(host, port)
+      session.start
+      session
     end
 
     def initialize host, port
@@ -14,7 +16,11 @@ module MallCop
     end
 
     def start
-      case native_start(socket)
+      if native_start(socket) == 0
+        return true
+      end
+
+      case native_last_errno
       when ERROR_SOCKET_NONE       then raise "The socket is invalid"
       when ERROR_BANNER_SEND       then raise "Unable to send banner to remote host"
       when ERROR_KEX_FAILURE       then raise "Encryption key exchange with the remote host failed"
@@ -22,9 +28,8 @@ module MallCop
       when ERROR_SOCKET_DISCONNECT then raise "The socket was disconnected"
       when ERROR_PROTO             then raise "An invalid SSH protocol response was received on the socket"
       when ERROR_EAGAIN            then raise "Marked for non-blocking I/O but the call would block"
+      else raise "Something went wrong"
       end
-
-      self
     end
 
     def authenticate username, options
@@ -32,13 +37,17 @@ module MallCop
     end
 
     def open_channel
-      case channel_or_error = native_open_channel
+      if channel = native_open_channel
+        return channel
+      end
+
+      case native_last_errno
       when ERROR_ALLOC           then raise "An internal memory allocation call failed"
       when ERROR_SOCKET_SEND     then raise "Unable to send data on socket"
       when ERROR_CHANNEL_FAILURE then raise "The channel failed"
       when ERROR_EAGAIN          then raise "Marked for non-blocking I/O but the call would block"
+      else raise "Something went wrong"
       end
-      channel_or_error
     end
 
   private
