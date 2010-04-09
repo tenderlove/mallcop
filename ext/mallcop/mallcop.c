@@ -1,12 +1,14 @@
 #include <mallcop.h>
 
 VALUE rb_mMallCop;
+VALUE rb_mMallCopErrors;
 
 void Init_mallcop()
 {
   int rc;
 
   rb_mMallCop = rb_define_module("MallCop");
+  rb_mMallCopErrors = rb_define_module_under(rb_mMallCop, "Errors");
 
   rb_define_const(rb_mMallCop, "ERROR_ALLOC",             INT2FIX(LIBSSH2_ERROR_ALLOC));
   rb_define_const(rb_mMallCop, "ERROR_BANNER_SEND",       INT2FIX(LIBSSH2_ERROR_BANNER_SEND));
