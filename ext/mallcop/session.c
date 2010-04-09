@@ -129,16 +129,17 @@ static VALUE last_errno(VALUE self)
   return INT2FIX(libssh2_session_last_errno(session));
 }
 
-static VALUE last_error(VALUE self)
+static VALUE last_errmsg(VALUE self)
 {
   LIBSSH2_SESSION *session;
   char *errmsg;
+  int errlen;
 
   Data_Get_Struct(self, LIBSSH2_SESSION, session);
 
-  libssh2_session_last_error(session, &errmsg, 0, 0);
+  libssh2_session_last_error(session, &errmsg, &errlen, 0);
 
-  return Qnil;
+  return rb_str_new(errmsg, (long) errlen);
 }
 
 void init_mallcop_session()
@@ -150,6 +151,7 @@ void init_mallcop_session()
   rb_define_private_method(rb_cMallCopSession, "native_open_channel", open_channel, 0);
   rb_define_private_method(rb_cMallCopSession, "native_userauth_list", userauth_list, 1);
   rb_define_private_method(rb_cMallCopSession, "native_last_errno", last_errno, 0);
+  rb_define_private_method(rb_cMallCopSession, "native_last_errmsg", last_errmsg, 0);
 
   rb_define_method(rb_cMallCopSession, "hostkey_hash", hostkey_hash, 1);
   rb_define_method(rb_cMallCopSession, "userauth_password", userauth_password, 2);

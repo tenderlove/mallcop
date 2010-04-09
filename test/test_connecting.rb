@@ -12,11 +12,6 @@ module MallCop
       MallCop.connect "127.0.0.1", username, options
     end
 
-    def stub_session_start_with(errno)
-      Session.any_instance.stubs(:native_start).returns(-1)
-      Session.any_instance.stubs(:native_last_errno).returns(errno)
-    end
-
     it "raises an exception if connection cannot be established" do
       assert_raises(ConnectionError) do
         mallcop_connect :port => 9331
@@ -27,10 +22,11 @@ module MallCop
       assert_doesnt_raise { mallcop_connect }
     end
 
-    describe "error handling" do
-      it "rescues from an invalid socket" do
-        stub_session_start_with(ERROR_SOCKET_NONE)
-        assert_raises(ConnectionError) { mallcop_connect }
+    it "rescues from an error while connecting" do
+      Session.any_instance.stubs(:native_start).returns(-1)
+      Session.any_instance.stubs(:native_last_errmsg).returns("Something failed")
+      assert_raises_with_msg(ConnectionError, "Something failed") do
+        mallcop_connect
       end
     end
 

@@ -19,18 +19,7 @@ module MallCop
         return true
       end
 
-      msg = case native_last_errno
-      when ERROR_SOCKET_NONE       then "The socket is invalid"
-      when ERROR_BANNER_SEND       then "Unable to send banner to remote host"
-      when ERROR_KEX_FAILURE       then "Encryption key exchange with the remote host failed"
-      when ERROR_SOCKET_SEND       then "Unable to send data on socket"
-      when ERROR_SOCKET_DISCONNECT then "The socket was disconnected"
-      when ERROR_PROTO             then "An invalid SSH protocol response was received on the socket"
-      when ERROR_EAGAIN            then "Marked for non-blocking I/O but the call would block"
-      else "Something went wrong"
-      end
-
-      raise ConnectionError, msg
+      raise ConnectionError, native_last_errmsg
     end
 
     def authenticate username, options
