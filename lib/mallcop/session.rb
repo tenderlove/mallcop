@@ -26,8 +26,8 @@ module MallCop
       self
     end
 
-    def authlist_for user
-      userauth_list(user).split ','
+    def authenticate username, options
+      userauth_password username, options[:password]
     end
 
     def open_channel
@@ -48,6 +48,10 @@ module MallCop
       end
     rescue Errno::ECONNREFUSED => e
       raise ConnectionError, "Cannot establish a connection to #{@host} on port #{@port}"
+    end
+
+    def authlist_for user
+      userauth_list(user).split ','
     end
 
   end

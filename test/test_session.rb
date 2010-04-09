@@ -26,13 +26,6 @@ describe "a mallcop @session" do
     assert_instance_of String, hash
   end
 
-  it "returns a list of authentication schemes" do
-    @session.start
-    list = @session.authlist_for username
-    assert_instance_of Array, list
-    assert list.include?('publickey')
-  end
-
   it "logs in with username / password" do
     @session.start
     assert @session.userauth_password username, password

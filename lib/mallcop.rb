@@ -9,9 +9,20 @@ module MallCop
   # Raised when something happens with connecting to the server
   class ConnectionError < StandardError ; end
 
+  # Establishes a connection to the SSH server.
+  #
+  # Arguments
+  # =====
+  # +host+      The host to connect to
+  # +username+  The username to connect under.
+  #
+  # Optional:
+  # +options+
+  #   :port     The port to connect on (defaults to 22)
+  #   :password Use a password based authentication strategy.
   def self.connect(host, username, options = {})
     session = Session.start(host, options[:port] || 22)
-    session.userauth_password username, options[:password]
+    session.authenticate username, options
 
     yield session if block_given?
     session
