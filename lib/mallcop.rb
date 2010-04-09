@@ -8,6 +8,7 @@ module MallCop
 
   # Raised when something happens with connecting to the server
   class ConnectionError < StandardError ; end
+  class ChannelError    < StandardError ; end
 
   # Establishes a connection to the SSH server.
   #

@@ -22,7 +22,7 @@ module MallCop
       assert_doesnt_raise { mallcop_connect }
     end
 
-    it "rescues from an error while connecting" do
+    it "raises the correct exception when an error occurs" do
       Session.any_instance.stubs(:native_start).returns(-1)
       Session.any_instance.stubs(:native_last_errmsg).returns("Something failed")
       assert_raises_with_msg(ConnectionError, "Something failed") do

@@ -31,13 +31,7 @@ module MallCop
         return channel
       end
 
-      case native_last_errno
-      when ERROR_ALLOC           then raise "An internal memory allocation call failed"
-      when ERROR_SOCKET_SEND     then raise "Unable to send data on socket"
-      when ERROR_CHANNEL_FAILURE then raise "The channel failed"
-      when ERROR_EAGAIN          then raise "Marked for non-blocking I/O but the call would block"
-      else raise "Something went wrong"
-      end
+      raise ChannelError, native_last_errmsg
     end
 
   private
