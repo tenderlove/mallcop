@@ -1,6 +1,6 @@
 require "helper"
 
-describe "interactive" do
+describe "shell" do
 
   before do
     sshd
