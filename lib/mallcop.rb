@@ -23,7 +23,10 @@ module MallCop
   #   :password Use a password based authentication strategy.
   def self.connect(host, username, options = {})
     session = Session.start(host, options[:port] || 22)
-    session.authenticate username, options
+
+    unless session.authenticate username, options
+      raise ChannelError, "Could not authenticate user '#{username}'"
+    end
 
     yield session if block_given?
     session

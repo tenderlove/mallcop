@@ -23,7 +23,21 @@ module MallCop
     end
 
     def authenticate username, options
-      userauth_password username, options[:password]
+      allowed = authlist_for username
+
+      attempted = []
+
+      auth_methods.each do |method|
+        next unless allowed.include?(method)
+
+        attempted << method
+
+        if send "authenticate_via_#{method.downcase}", username, options
+          return true
+        end
+      end
+
+      false
     end
 
     def open_channel
@@ -44,8 +58,24 @@ module MallCop
       raise ConnectionError, "Cannot establish a connection to #{@host} on port #{@port}"
     end
 
-    def authlist_for user
-      userauth_list(user).split ','
+    def auth_methods
+      %w(publickey hostbased password)
+    end
+
+    def authlist_for username
+      native_userauth_list(username).split ','
+    end
+
+    def authenticate_via_password username, options
+      userauth_password username, options[:password]
+    end
+
+    def authenticate_via_publickey username, options
+      # Not implemented yet
+    end
+    
+    def authenticate_via_hostbased username, options
+      # Not implemented yet
     end
   end
 end
