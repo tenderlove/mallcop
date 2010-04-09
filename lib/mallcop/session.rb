@@ -2,6 +2,7 @@ require 'socket'
 
 module MallCop
   class Session
+    include Errors
 
     def self.start host, port
       new(host, port).start
