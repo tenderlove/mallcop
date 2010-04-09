@@ -29,7 +29,7 @@ module MallCop
 
     describe "error handling" do
       it "rescues from an invalid socket" do
-        stub_session_start_with(Errors::ERROR_SOCKET_NONE)
+        stub_session_start_with(ERROR_SOCKET_NONE)
         assert_raises(ConnectionError) { mallcop_connect }
       end
     end

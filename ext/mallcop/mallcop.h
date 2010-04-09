@@ -6,11 +6,9 @@
 #include <libssh2.h>
 
 extern VALUE rb_mMallCop;
-extern VALUE rb_mMallCopErrors;
 extern VALUE rb_cMallCopSession;
 extern VALUE rb_cMallCopChannel;
 
-void init_mallcop_errors();
 void init_mallcop_channel();
 void init_mallcop_session();
 
