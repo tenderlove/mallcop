@@ -12,5 +12,6 @@ module MiniTest
 
   class Spec
     include Helpers::SSHD
+    include Helpers::Assertions
   end
 end

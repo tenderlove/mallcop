@@ -6,6 +6,9 @@ require 'mallcop/shell'
 module MallCop
   VERSION = '1.0.0'
 
+  # Raised when something happens with connecting to the server
+  class ConnectionError < StandardError ; end
+
   def self.connect(host, username, options = {})
     session = Session.start(host, options[:port] || 22)
     session.userauth_password username, options[:password]

@@ -48,6 +48,8 @@ module MallCop
       @socket ||= Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0).tap do |s|
         s.connect Socket.sockaddr_in(@port, @host)
       end
+    rescue Errno::ECONNREFUSED => e
+      raise ConnectionError, "Cannot establish a connection to #{@host} on port #{@port}"
     end
 
   end
