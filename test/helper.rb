@@ -2,6 +2,7 @@ require "minitest/spec"
 require "fileutils"
 require "yaml"
 require "mallcop"
+require "mocha"
 
 Dir["#{File.expand_path("../support", __FILE__)}/*.rb"].each { |f| require f }
 
