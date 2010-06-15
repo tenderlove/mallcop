@@ -10,6 +10,7 @@ module MallCop
     end
 
     def initialize host, port
+      native_initialize
       @host = host
       @port = port
     end

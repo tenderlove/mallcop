@@ -9,6 +9,11 @@ extern VALUE rb_mMallCop;
 extern VALUE rb_cMallCopSession;
 extern VALUE rb_cMallCopChannel;
 
+typedef struct {
+  LIBSSH2_SESSION *libssh2_session;
+  int count;
+} MallCopSession;
+
 void init_mallcop_channel();
 void init_mallcop_session();
 

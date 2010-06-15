@@ -4,39 +4,57 @@ VALUE rb_cMallCopSession;
 
 static VALUE dealloc(LIBSSH2_SESSION *session)
 {
-  libssh2_session_free(session);
+  // libssh2_session_free(session);
 }
 
 static VALUE allocate(VALUE klass)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session = calloc( 1, sizeof(MallCopSession) );
 
-  session = libssh2_session_init();
-  if(!session) rb_raise(rb_eRuntimeError, "session init failed");
+  return Data_Wrap_Struct(klass, 0, dealloc, m_session);
+}
 
-  return Data_Wrap_Struct(klass, 0, dealloc, session);
+static VALUE initialize(VALUE self)
+{
+  MallCopSession *m_session;
+
+  Data_Get_Struct(self, MallCopSession, m_session);
+
+  if ( m_session->libssh2_session ) {
+    rb_raise(rb_eRuntimeError, "the libssh2 session is already initialized");
+    return Qnil;
+  }
+
+  m_session->libssh2_session = libssh2_session_init();
+
+  if ( !m_session->libssh2_session ) {
+    rb_raise(rb_eRuntimeError, "session init failed");
+    return Qnil;
+  }
+
+  return Qtrue;
 }
 
 static VALUE start(VALUE self, VALUE sock)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session;
   rb_io_t *fptr;
 
-  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+  Data_Get_Struct(self, MallCopSession, m_session);
 
   GetOpenFile(sock, fptr);
 
-  return INT2FIX(libssh2_session_startup(session, fptr->fd));
+  return INT2FIX(libssh2_session_startup(m_session->libssh2_session, fptr->fd));
 }
 
 static VALUE hostkey_hash(VALUE self, VALUE hashtype)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session;
   const char *key;
   int keytype = NUM2INT(hashtype);
-  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+  Data_Get_Struct(self, MallCopSession, m_session);
 
-  key = libssh2_hostkey_hash(session, keytype);
+  key = libssh2_hostkey_hash(m_session->libssh2_session, keytype);
   if(!key) return Qnil;
   if(keytype == LIBSSH2_HOSTKEY_HASH_SHA1)
     return rb_str_new(key, 20);
@@ -46,23 +64,26 @@ static VALUE hostkey_hash(VALUE self, VALUE hashtype)
 
 static VALUE userauth_list(VALUE self, VALUE user)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session;
   char * list;
 
-  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+  Data_Get_Struct(self, MallCopSession, m_session);
 
-  list = libssh2_userauth_list(session, StringValuePtr(user), RSTRING_LEN(user));
+  list = libssh2_userauth_list(m_session->libssh2_session,
+          StringValuePtr(user), RSTRING_LEN(user));
+
   return rb_str_new2(list);
 }
 
 static VALUE userauth_password(VALUE self, VALUE user, VALUE password)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session;
   int ret;
 
-  Data_Get_Struct(self, LIBSSH2_SESSION, session);
-  ret = libssh2_userauth_password(session, StringValuePtr(user),
-      StringValuePtr(password));
+  Data_Get_Struct(self, MallCopSession, m_session);
+
+  ret = libssh2_userauth_password(m_session->libssh2_session,
+          StringValuePtr(user), StringValuePtr(password));
 
   if(ret) {
     switch(ret) {
@@ -81,13 +102,14 @@ static VALUE userauth_password(VALUE self, VALUE user, VALUE password)
 
 static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_key, VALUE private_key, VALUE password)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session;
   int ret;
 
-  Data_Get_Struct(self, LIBSSH2_SESSION, session);
-  ret = libssh2_userauth_publickey_fromfile(session, StringValuePtr(user),
-          StringValuePtr(public_key), StringValuePtr(private_key),
-          StringValuePtr(password));
+  Data_Get_Struct(self, MallCopSession, m_session);
+
+  ret = libssh2_userauth_publickey_fromfile(m_session->libssh2_session,
+          StringValuePtr(user), StringValuePtr(public_key),
+          StringValuePtr(private_key), StringValuePtr(password));
 
   if(ret) {
     switch(ret) {
@@ -106,12 +128,12 @@ static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_ke
 
 static VALUE open_channel(VALUE self)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session;
   LIBSSH2_CHANNEL *channel;
 
-  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+  Data_Get_Struct(self, MallCopSession, m_session);
 
-  channel = libssh2_channel_open_session(session);
+  channel = libssh2_channel_open_session(m_session->libssh2_session);
 
   if (channel) {
     return MallCop_Wrap_Channel(self, channel);
@@ -122,22 +144,22 @@ static VALUE open_channel(VALUE self)
 
 static VALUE last_errno(VALUE self)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session;
 
-  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+  Data_Get_Struct(self, MallCopSession, m_session);
 
-  return INT2FIX(libssh2_session_last_errno(session));
+  return INT2FIX(libssh2_session_last_errno(m_session->libssh2_session));
 }
 
 static VALUE last_errmsg(VALUE self)
 {
-  LIBSSH2_SESSION *session;
+  MallCopSession *m_session;
   char *errmsg;
   int errlen;
 
-  Data_Get_Struct(self, LIBSSH2_SESSION, session);
+  Data_Get_Struct(self, MallCopSession, m_session);
 
-  libssh2_session_last_error(session, &errmsg, &errlen, 0);
+  libssh2_session_last_error(m_session->libssh2_session, &errmsg, &errlen, 0);
 
   return rb_str_new(errmsg, (long) errlen);
 }
@@ -147,6 +169,7 @@ void init_mallcop_session()
   rb_cMallCopSession = rb_define_class_under(rb_mMallCop, "Session", rb_cObject);
   rb_define_alloc_func(rb_cMallCopSession, allocate);
 
+  rb_define_private_method(rb_cMallCopSession, "native_initialize", initialize, 0);
   rb_define_private_method(rb_cMallCopSession, "native_start", start, 1);
   rb_define_private_method(rb_cMallCopSession, "native_open_channel", open_channel, 0);
   rb_define_private_method(rb_cMallCopSession, "native_userauth_list", userauth_list, 1);
