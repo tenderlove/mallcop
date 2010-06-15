@@ -8,7 +8,7 @@ describe "a mallcop @session" do
 
   def start_and_authenticate
     @session.start
-    @session.userauth_password username, password
+    @session.authenticate username, :password => password
   end
 
   def open_channel
@@ -28,12 +28,12 @@ describe "a mallcop @session" do
 
   it "logs in with username / password" do
     @session.start
-    assert @session.userauth_password username, password
+    assert @session.authenticate username, :password => password
   end
 
   it "logs in fails with bad username / password" do
     @session.start
-    assert !@session.userauth_password('foo', 'bar')
+    assert !@session.authenticate('foo', :password => 'bar')
   end
 
   it "logs in with a public key" do

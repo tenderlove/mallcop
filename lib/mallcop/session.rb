@@ -67,7 +67,7 @@ module MallCop
     end
 
     def authenticate_via_password username, options
-      userauth_password username, options[:password]
+      native_userauth_password username, options[:password]
     end
 
     def authenticate_via_publickey username, options
