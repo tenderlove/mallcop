@@ -17,6 +17,9 @@ typedef struct {
 void init_mallcop_channel();
 void init_mallcop_session();
 
+void mallcop_session_retain(MallCopSession *session);
+void mallcop_session_release(MallCopSession *session);
+
 VALUE MallCop_Wrap_Channel(VALUE session, LIBSSH2_CHANNEL * channel);
 
 #endif

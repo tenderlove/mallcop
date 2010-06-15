@@ -2,14 +2,24 @@
 
 VALUE rb_cMallCopSession;
 
-static VALUE dealloc(LIBSSH2_SESSION *session)
-{
+void mallcop_session_retain(MallCopSession *m_session) {
+  // Nothing yet
+}
+
+void mallcop_session_release(MallCopSession *m_session) {
   // libssh2_session_free(session);
+}
+
+static VALUE dealloc(MallCopSession *session)
+{
+  mallcop_session_release(session);
+  return Qtrue;
 }
 
 static VALUE allocate(VALUE klass)
 {
   MallCopSession *m_session = calloc( 1, sizeof(MallCopSession) );
+  mallcop_session_retain(m_session);
 
   return Data_Wrap_Struct(klass, 0, dealloc, m_session);
 }
