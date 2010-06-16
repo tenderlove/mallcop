@@ -18,6 +18,19 @@ module MallCop
       end
     end
 
+    it "works with commands ending in colon" do
+      shell do |s|
+        s.sh "cd #{root};"
+        assert_equal root, s.sh("pwd")
+      end
+    end
+
+    it "works with commands ending in amp" do
+      shell do |s|
+        assert_equal 'hello', s.sh("echo 'hello' ; echo 'foo' &")
+      end
+    end
+
     it "can close the channel" do
       shell do |s|
         s.channel.close

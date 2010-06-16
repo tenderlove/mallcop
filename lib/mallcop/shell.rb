@@ -1,3 +1,5 @@
+require 'digest/sha1'
+
 module MallCop
   class Shell
     attr_reader :channel
@@ -17,20 +19,26 @@ module MallCop
   private
 
     def exec_with_status(cmd)
+      separator = generate_separator
       # An `echo ''` is appended for now, mostly because I don't know of
-      # a better way to do this. I'll probably end up echoing a random
-      # string to indicate that the command is done.
-      cmd = %[#{cmd.strip} ; echo "--==LOL[[ $? ]]==--"\n]
+      # a better way to do this.
+      cmd = cmd.dup.strip
+      cmd << ";" if cmd !~ /[;&]$/
+      cmd << %[ echo #{separator} $?\n]
 
       @channel.write(cmd)
-      result = @channel.read.strip
 
-      unless result =~ /--==LOL\[\[ (\d+) \]\]==--\Z/m
-        puts "WTF: #{result.inspect}"
-        raise "Something went wrong"
+      res = ""
+      until res =~ /#{separator} (\d+)\Z/m
+        res << @channel.read
       end
 
       return $`.strip, $1.to_i
+    end
+
+    def generate_separator
+      s = Digest::SHA1.hexdigest([channel.object_id, object_id, Time.now.to_i, Time.now.usec, rand(0xFFFFFFFF)].join(":"))
+      s << Digest::SHA1.hexdigest(s)
     end
 
   end
