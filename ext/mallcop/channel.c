@@ -122,7 +122,7 @@ static VALUE channel_read(VALUE self)
   count = libssh2_channel_read(m_channel->libssh2_channel, buffer, sizeof(buffer));
 
   if (count > 0) {
-    return rb_str_new(&buffer, count);
+    return rb_str_new((const char *) &buffer, count);
   } else {
     rb_raise(rb_eRuntimeError, "Read failed with (%d)", count);
     return Qnil;
