@@ -1,4 +1,5 @@
 .DS_Store
+*.rbc
 lib/mallcop/mallcop.bundle
 test/support/sshd/host*
 test/support/sshd/client*
