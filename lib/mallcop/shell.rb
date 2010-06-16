@@ -1,5 +1,7 @@
 module MallCop
   class Shell
+    attr_reader :channel
+
     def initialize(session)
       @session = session
       @channel = session.open_channel

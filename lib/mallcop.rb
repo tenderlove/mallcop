@@ -7,6 +7,7 @@ module MallCop
   VERSION = '1.0.0'
 
   # Raised when something happens with connecting to the server
+  class RuntimeError    < ::RuntimeError; end
   class ConnectionError < StandardError ; end
   class ChannelError    < StandardError ; end
 

@@ -147,6 +147,18 @@ static VALUE channel_write(VALUE self, VALUE string)
   return Qtrue;
 }
 
+static VALUE channel_close(VALUE self)
+{
+  MallCopChannel *m_channel;
+  int ret;
+
+  Data_Get_Struct(self, MallCopChannel, m_channel);
+
+  ret = libssh2_channel_close(m_channel->libssh2_channel);
+
+  return INT2NUM(ret);
+}
+
 static VALUE eof(VALUE self)
 {
   MallCopChannel *m_channel;
@@ -175,11 +187,12 @@ void init_mallcop_channel()
 
   rb_define_private_method(rb_cMallCopChannel, "native_eof?", eof, 0);
   rb_define_private_method(rb_cMallCopChannel, "native_initialize", initialize, 0);
+  rb_define_private_method(rb_cMallCopChannel, "native_channel_close", channel_close, 0);
+  rb_define_private_method(rb_cMallCopChannel, "native_channel_read", channel_read, 0);
+  rb_define_private_method(rb_cMallCopChannel, "native_channel_write", channel_write, 1);
 
   rb_define_method(rb_cMallCopChannel, "request_pty", request_pty, 1);
   rb_define_method(rb_cMallCopChannel, "shell", shell, 0);
   rb_define_method(rb_cMallCopChannel, "channel_exec", channel_exec, 1);
-  rb_define_method(rb_cMallCopChannel, "read", channel_read, 0);
-  rb_define_method(rb_cMallCopChannel, "write", channel_write, 1);
   rb_define_method(rb_cMallCopChannel, "send_eof", send_eof, 0);
 }

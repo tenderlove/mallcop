@@ -17,5 +17,14 @@ module MallCop
         assert_equal root, s.sh("pwd")
       end
     end
+
+    it "can close the channel" do
+      shell do |s|
+        s.channel.close
+        assert_raises_with_msg(ChannelError, "The channel has been closed") do
+          s.sh "echo 'hello'"
+        end
+      end
+    end
   end
 end
