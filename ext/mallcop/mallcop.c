@@ -17,6 +17,7 @@ void Init_mallcop()
   rb_define_const(rb_mMallCop, "ERROR_SOCKET_NONE",       INT2FIX(LIBSSH2_ERROR_SOCKET_NONE));
   rb_define_const(rb_mMallCop, "ERROR_SOCKET_SEND",       INT2FIX(LIBSSH2_ERROR_SOCKET_SEND));
   rb_define_const(rb_mMallCop, "ERROR_PROTO",             INT2FIX(LIBSSH2_ERROR_PROTO));
+  rb_define_const(rb_mMallCop, "HASH_SHA1",               INT2FIX(LIBSSH2_HOSTKEY_HASH_SHA1));
 
   init_mallcop_session();
   init_mallcop_channel();

@@ -45,6 +45,14 @@ module MallCop
       Channel.new(self)
     end
 
+    def hostkey_hash(hashtype)
+      native_hostkey_hash(hashtype)
+    end
+
+    def userauth_publickey_fromfile(user, public_key, private_key, password)
+      native_userauth_publickey_fromfile(user, public_key, private_key, password)
+    end
+
   private
 
     def socket

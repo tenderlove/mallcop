@@ -32,5 +32,21 @@ module MallCop
     ensure
       @open = false
     end
+
+    def request_pty(term)
+      native_request_pty(term)
+    end
+
+    def shell
+      native_shell
+    end
+
+    def channel_exec(cmd)
+      native_channel_exec(cmd)
+    end
+
+    def send_eof
+      native_send_eof
+    end
   end
 end

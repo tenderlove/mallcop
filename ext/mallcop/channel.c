@@ -190,9 +190,8 @@ void init_mallcop_channel()
   rb_define_private_method(rb_cMallCopChannel, "native_channel_close", channel_close, 0);
   rb_define_private_method(rb_cMallCopChannel, "native_channel_read", channel_read, 0);
   rb_define_private_method(rb_cMallCopChannel, "native_channel_write", channel_write, 1);
-
-  rb_define_method(rb_cMallCopChannel, "request_pty", request_pty, 1);
-  rb_define_method(rb_cMallCopChannel, "shell", shell, 0);
-  rb_define_method(rb_cMallCopChannel, "channel_exec", channel_exec, 1);
-  rb_define_method(rb_cMallCopChannel, "send_eof", send_eof, 0);
+  rb_define_private_method(rb_cMallCopChannel, "native_request_pty", request_pty, 1);
+  rb_define_private_method(rb_cMallCopChannel, "native_shell", shell, 0);
+  rb_define_private_method(rb_cMallCopChannel, "native_channel_exec", channel_exec, 1);
+  rb_define_private_method(rb_cMallCopChannel, "native_send_eof", send_eof, 0);
 }

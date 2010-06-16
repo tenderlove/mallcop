@@ -22,7 +22,7 @@ describe "a mallcop @session" do
 
   it "provides a hostkey hash" do
     @session.start
-    hash = @session.hostkey_hash MallCop::Session::HASH_SHA1
+    hash = @session.hostkey_hash MallCop::HASH_SHA1
     assert_instance_of String, hash
   end
 
