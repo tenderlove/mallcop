@@ -10,12 +10,28 @@ module MallCop
     end
 
     def sh(cmd)
+      res, code = exec_with_status(cmd)
+      res
+    end
+
+  private
+
+    def exec_with_status(cmd)
       # An `echo ''` is appended for now, mostly because I don't know of
       # a better way to do this. I'll probably end up echoing a random
       # string to indicate that the command is done.
-      cmd = "#{cmd.strip}\necho ''\n"
+      cmd = %[#{cmd.strip} ; echo "--==LOL[[ $? ]]==--"\n]
+
       @channel.write(cmd)
-      @channel.read.strip
+      result = @channel.read.strip
+
+      unless result =~ /--==LOL\[\[ (\d+) \]\]==--\Z/m
+        puts "WTF: #{result.inspect}"
+        raise "Something went wrong"
+      end
+
+      return $`.strip, $1.to_i
     end
+
   end
 end
