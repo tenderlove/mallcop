@@ -111,7 +111,7 @@ static VALUE channel_exec(VALUE self, VALUE command)
   return Qtrue;
 }
 
-static VALUE read(VALUE self)
+static VALUE channel_read(VALUE self)
 {
   MallCopChannel *m_channel;
   char buffer[0x4000];
@@ -131,7 +131,7 @@ static VALUE read(VALUE self)
   return Qnil;
 }
 
-static VALUE write(VALUE self, VALUE string)
+static VALUE channel_write(VALUE self, VALUE string)
 {
   MallCopChannel *m_channel;
   ssize_t ret;
@@ -179,7 +179,7 @@ void init_mallcop_channel()
   rb_define_method(rb_cMallCopChannel, "request_pty", request_pty, 1);
   rb_define_method(rb_cMallCopChannel, "shell", shell, 0);
   rb_define_method(rb_cMallCopChannel, "channel_exec", channel_exec, 1);
-  rb_define_method(rb_cMallCopChannel, "read", read, 0);
-  rb_define_method(rb_cMallCopChannel, "write", write, 1);
+  rb_define_method(rb_cMallCopChannel, "read", channel_read, 0);
+  rb_define_method(rb_cMallCopChannel, "write", channel_write, 1);
   rb_define_method(rb_cMallCopChannel, "send_eof", send_eof, 0);
 }
