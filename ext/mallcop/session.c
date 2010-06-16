@@ -50,16 +50,13 @@ static VALUE initialize(VALUE self)
   return Qtrue;
 }
 
-static VALUE start(VALUE self, VALUE sock)
+static VALUE start(VALUE self, VALUE fd)
 {
   MallCopSession *m_session;
-  rb_io_t *fptr;
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  GetOpenFile(sock, fptr);
-
-  return INT2FIX(libssh2_session_startup(m_session->libssh2_session, fptr->fd));
+  return INT2FIX(libssh2_session_startup(m_session->libssh2_session, NUM2INT(fd)));
 }
 
 static VALUE hostkey_hash(VALUE self, VALUE hashtype)

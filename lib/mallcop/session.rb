@@ -16,7 +16,7 @@ module MallCop
     end
 
     def start
-      if native_start(socket) == 0
+      if native_start(socket.fileno) == 0
         return true
       end
 
