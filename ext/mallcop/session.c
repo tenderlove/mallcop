@@ -2,18 +2,23 @@
 
 VALUE rb_cMallCopSession;
 
-void mallcop_session_retain(MallCopSession *m_session) {
+void mallcop_session_retain(MallCopSession *m_session)
+{
+  ++m_session->count;
   // Nothing yet
 }
 
-void mallcop_session_release(MallCopSession *m_session) {
-  // libssh2_session_free(session);
+void mallcop_session_release(MallCopSession *m_session)
+{
+  if ( --m_session->count == 0 ) {
+    libssh2_session_free( m_session->libssh2_session );
+    free( m_session );
+  }
 }
 
-static VALUE dealloc(MallCopSession *session)
+static void dealloc(MallCopSession *m_session)
 {
-  mallcop_session_release(session);
-  return Qtrue;
+  mallcop_session_release( m_session );
 }
 
 static VALUE allocate(VALUE klass)
@@ -136,22 +141,6 @@ static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_ke
   return Qtrue;
 }
 
-static VALUE open_channel(VALUE self)
-{
-  MallCopSession *m_session;
-  LIBSSH2_CHANNEL *channel;
-
-  Data_Get_Struct(self, MallCopSession, m_session);
-
-  channel = libssh2_channel_open_session(m_session->libssh2_session);
-
-  if (channel) {
-    return MallCop_Wrap_Channel(self, channel);
-  } else {
-    return Qnil;
-  }
-}
-
 static VALUE last_errno(VALUE self)
 {
   MallCopSession *m_session;
@@ -181,7 +170,6 @@ void init_mallcop_session()
 
   rb_define_private_method(rb_cMallCopSession, "native_initialize", initialize, 0);
   rb_define_private_method(rb_cMallCopSession, "native_start", start, 1);
-  rb_define_private_method(rb_cMallCopSession, "native_open_channel", open_channel, 0);
   rb_define_private_method(rb_cMallCopSession, "native_userauth_list", userauth_list, 1);
   rb_define_private_method(rb_cMallCopSession, "native_last_errno", last_errno, 0);
   rb_define_private_method(rb_cMallCopSession, "native_last_errmsg", last_errmsg, 0);

@@ -42,11 +42,7 @@ module MallCop
     end
 
     def open_channel
-      if channel = native_open_channel
-        return channel
-      end
-
-      raise ChannelError, native_last_errmsg
+      Channel.new(self)
     end
 
   private
