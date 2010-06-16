@@ -53,6 +53,10 @@ module MallCop
       native_userauth_publickey_fromfile(user, public_key, private_key, password)
     end
 
+    def disconnect(description)
+      native_disconnect(description)
+    end
+
   private
 
     def socket
@@ -72,7 +76,8 @@ module MallCop
     end
 
     def authenticate_via_password username, options
-      native_userauth_password username, options[:password]
+      res = native_userauth_password(username, options[:password])
+      res == 0
     end
 
     def authenticate_via_publickey username, options

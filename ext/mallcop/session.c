@@ -64,12 +64,18 @@ static VALUE hostkey_hash(VALUE self, VALUE hashtype)
   MallCopSession *m_session;
   const char *key;
   int keytype = NUM2INT(hashtype);
+
   Data_Get_Struct(self, MallCopSession, m_session);
 
   key = libssh2_hostkey_hash(m_session->libssh2_session, keytype);
-  if(!key) return Qnil;
-  if(keytype == LIBSSH2_HOSTKEY_HASH_SHA1)
+
+  if ( !key ) {
+    return Qnil;
+  }
+
+  if ( keytype == LIBSSH2_HOSTKEY_HASH_SHA1 ) {
     return rb_str_new(key, 20);
+  }
 
   return rb_str_new(key, 16);
 }
@@ -97,19 +103,7 @@ static VALUE userauth_password(VALUE self, VALUE user, VALUE password)
   ret = libssh2_userauth_password(m_session->libssh2_session,
           StringValuePtr(user), StringValuePtr(password));
 
-  if(ret) {
-    switch(ret) {
-      case LIBSSH2_ERROR_AUTHENTICATION_FAILED:
-      case LIBSSH2_ERROR_SOCKET_NONE:
-        return Qfalse;
-        break;
-      default:
-        rb_raise(rb_eRuntimeError, "authentication failed (%d)", ret);
-        break;
-    }
-  }
-
-  return Qtrue;
+  return INT2NUM(ret);
 }
 
 static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_key, VALUE private_key, VALUE password)
@@ -136,6 +130,18 @@ static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_ke
   }
 
   return Qtrue;
+}
+
+static VALUE disconnect(VALUE self, VALUE description)
+{
+  MallCopSession *m_session;
+  int ret;
+
+  Data_Get_Struct(self, MallCopSession, m_session);
+
+  ret = libssh2_session_disconnect(m_session->libssh2_session, StringValuePtr(description));
+
+  return INT2NUM(ret);
 }
 
 static VALUE last_errno(VALUE self)
@@ -173,4 +179,5 @@ void init_mallcop_session()
   rb_define_private_method(rb_cMallCopSession, "native_userauth_password", userauth_password, 2);
   rb_define_private_method(rb_cMallCopSession, "native_hostkey_hash", hostkey_hash, 1);
   rb_define_private_method(rb_cMallCopSession, "native_userauth_publickey_fromfile", userauth_publickey_fromfile, 4);
+  rb_define_private_method(rb_cMallCopSession, "native_disconnect", disconnect, 1);
 }
