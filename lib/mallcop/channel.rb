@@ -48,5 +48,9 @@ module MallCop
     def send_eof
       native_send_eof
     end
+
+    def flush
+      native_flush
+    end
   end
 end

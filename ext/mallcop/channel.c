@@ -180,6 +180,18 @@ static VALUE send_eof(VALUE self)
   return Qtrue;
 }
 
+static VALUE flush(VALUE self)
+{
+  MallCopChannel *m_channel;
+  int ret;
+
+  Data_Get_Struct(self, MallCopChannel, m_channel);
+
+  ret = libssh2_channel_flush(m_channel->libssh2_channel);
+
+  return Qtrue;
+}
+
 void init_mallcop_channel()
 {
   rb_cMallCopChannel = rb_define_class_under(rb_mMallCop, "Channel", rb_cObject);
@@ -194,4 +206,5 @@ void init_mallcop_channel()
   rb_define_private_method(rb_cMallCopChannel, "native_shell", shell, 0);
   rb_define_private_method(rb_cMallCopChannel, "native_channel_exec", channel_exec, 1);
   rb_define_private_method(rb_cMallCopChannel, "native_send_eof", send_eof, 0);
+  rb_define_private_method(rb_cMallCopChannel, "native_flush", flush, 0);
 }
