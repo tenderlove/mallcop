@@ -25,13 +25,7 @@ module MallCop
     end
 
     def read_nonblock
-      retval = native_channel_read
-
-      if Exception === retval
-        raise retval
-      end
-
-      retval
+      native_channel_read
     end
 
     def write(cmd)
