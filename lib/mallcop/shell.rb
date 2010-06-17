@@ -16,6 +16,10 @@ module MallCop
       res
     end
 
+    def cleanup
+      @channel.close
+    end
+
   private
 
     def exec_with_status(cmd)

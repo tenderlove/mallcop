@@ -32,14 +32,17 @@ module MallCop
 
     if block_given?
       yield session
-      session.disconnect
+      session.disconnect("Closing session")
     end
 
     session
   end
 
   def self.shell(host, username, options = {})
-    session = connect(host, username, options)
-    yield Shell.new(session)
+    connect(host, username, options) do |session|
+      shell = Shell.new(session)
+      yield shell
+      shell.cleanup
+    end
   end
 end
