@@ -11,12 +11,14 @@ module MallCop
 
     def initialize host, port
       native_initialize
+      native_set_blocking(0)
       @host = host
       @port = port
     end
 
     def start
-      if native_start(socket.fileno) == 0
+      ret = native_start(socket.fileno)
+      if ret == 0
         return true
       end
 

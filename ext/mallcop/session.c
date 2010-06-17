@@ -5,13 +5,12 @@ VALUE rb_cMallCopSession;
 void mallcop_session_retain(MallCopSession *m_session)
 {
   ++m_session->count;
-  // Nothing yet
 }
 
 void mallcop_session_release(MallCopSession *m_session)
 {
   if ( --m_session->count == 0 ) {
-    libssh2_session_free( m_session->libssh2_session );
+    BLOCK(libssh2_session_free( m_session->libssh2_session ));
     free( m_session );
   }
 }
@@ -50,13 +49,33 @@ static VALUE initialize(VALUE self)
   return Qtrue;
 }
 
-static VALUE start(VALUE self, VALUE fd)
+static VALUE set_blocking(VALUE self, VALUE blocking)
 {
   MallCopSession *m_session;
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  return INT2FIX(libssh2_session_startup(m_session->libssh2_session, NUM2INT(fd)));
+  if ( !m_session->libssh2_session ) {
+    rb_raise(rb_eRuntimeError, "session not initialized yet");
+    return Qnil;
+  }
+
+  libssh2_session_set_blocking( m_session->libssh2_session, NUM2INT(blocking) );
+
+  return Qnil;
+}
+
+static VALUE start(VALUE self, VALUE r_fd)
+{
+  MallCopSession *m_session;
+  int ret;
+  int fd = NUM2INT(r_fd);
+
+  Data_Get_Struct(self, MallCopSession, m_session);
+
+  BLOCK(ret = libssh2_session_startup(m_session->libssh2_session, fd));
+
+  return INT2FIX(ret);
 }
 
 static VALUE hostkey_hash(VALUE self, VALUE hashtype)
@@ -87,8 +106,10 @@ static VALUE userauth_list(VALUE self, VALUE user)
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  list = libssh2_userauth_list(m_session->libssh2_session,
-          StringValuePtr(user), RSTRING_LEN(user));
+  do {
+    list = libssh2_userauth_list(m_session->libssh2_session,
+            StringValuePtr(user), RSTRING_LEN(user));
+  } while ( !list && libssh2_session_last_errno(m_session->libssh2_session) == LIBSSH2_ERROR_EAGAIN );
 
   return rb_str_new2(list);
 }
@@ -100,8 +121,8 @@ static VALUE userauth_password(VALUE self, VALUE user, VALUE password)
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  ret = libssh2_userauth_password(m_session->libssh2_session,
-          StringValuePtr(user), StringValuePtr(password));
+  BLOCK(ret = libssh2_userauth_password(m_session->libssh2_session,
+                StringValuePtr(user), StringValuePtr(password)));
 
   return INT2NUM(ret);
 }
@@ -113,9 +134,9 @@ static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_ke
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  ret = libssh2_userauth_publickey_fromfile(m_session->libssh2_session,
-          StringValuePtr(user), StringValuePtr(public_key),
-          StringValuePtr(private_key), StringValuePtr(password));
+  BLOCK(ret = libssh2_userauth_publickey_fromfile(m_session->libssh2_session,
+                StringValuePtr(user), StringValuePtr(public_key),
+                StringValuePtr(private_key), StringValuePtr(password)));
 
   if(ret) {
     switch(ret) {
@@ -139,7 +160,8 @@ static VALUE disconnect(VALUE self, VALUE description)
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  ret = libssh2_session_disconnect(m_session->libssh2_session, StringValuePtr(description));
+  BLOCK(ret = libssh2_session_disconnect(m_session->libssh2_session,
+                StringValuePtr(description)));
 
   return INT2NUM(ret);
 }
@@ -147,10 +169,13 @@ static VALUE disconnect(VALUE self, VALUE description)
 static VALUE last_errno(VALUE self)
 {
   MallCopSession *m_session;
+  int ret;
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  return INT2FIX(libssh2_session_last_errno(m_session->libssh2_session));
+  ret = libssh2_session_last_errno(m_session->libssh2_session);
+
+  return INT2FIX(ret);
 }
 
 static VALUE last_errmsg(VALUE self)
@@ -173,6 +198,7 @@ void init_mallcop_session()
 
   rb_define_private_method(rb_cMallCopSession, "native_initialize", initialize, 0);
   rb_define_private_method(rb_cMallCopSession, "native_start", start, 1);
+  rb_define_private_method(rb_cMallCopSession, "native_set_blocking", set_blocking, 1);
   rb_define_private_method(rb_cMallCopSession, "native_userauth_list", userauth_list, 1);
   rb_define_private_method(rb_cMallCopSession, "native_last_errno", last_errno, 0);
   rb_define_private_method(rb_cMallCopSession, "native_last_errmsg", last_errmsg, 0);

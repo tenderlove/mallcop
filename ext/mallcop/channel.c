@@ -4,7 +4,7 @@ VALUE rb_cMallCopChannel;
 
 static void dealloc(MallCopChannel *m_channel)
 {
-  libssh2_channel_free( m_channel->libssh2_channel );
+  BLOCK(libssh2_channel_free( m_channel->libssh2_channel ));
   mallcop_session_release( m_channel->m_session );
   free( m_channel );
 }
@@ -37,7 +37,10 @@ static VALUE initialize(VALUE self)
 
   Data_Get_Struct(session, MallCopSession, m_session);
   m_channel->m_session = m_session;
-  m_channel->libssh2_channel = libssh2_channel_open_session(m_session->libssh2_session);
+
+  do {
+    m_channel->libssh2_channel = libssh2_channel_open_session(m_session->libssh2_session);
+  } while ( !m_channel->libssh2_channel && libssh2_session_last_errno(m_session->libssh2_session) == LIBSSH2_ERROR_EAGAIN );
 
   if ( !m_channel->libssh2_channel ) {
     rb_raise(rb_eRuntimeError, "channel init failed");
@@ -56,7 +59,7 @@ static VALUE request_pty(VALUE self, VALUE term)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  ret = libssh2_channel_request_pty(m_channel->libssh2_channel, StringValuePtr(term));
+  BLOCK(ret = libssh2_channel_request_pty(m_channel->libssh2_channel, StringValuePtr(term)));
 
   if(ret) {
     switch(ret) {
@@ -79,7 +82,7 @@ static VALUE shell(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  ret = libssh2_channel_shell(m_channel->libssh2_channel);
+  BLOCK(ret = libssh2_channel_shell(m_channel->libssh2_channel));
 
   if (ret) {
     switch(ret) {
@@ -102,7 +105,7 @@ static VALUE channel_exec(VALUE self, VALUE command)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  ret = libssh2_channel_exec(m_channel->libssh2_channel, StringValuePtr(command));
+  BLOCK(ret = libssh2_channel_exec(m_channel->libssh2_channel, StringValuePtr(command)));
 
   if (ret) {
     rb_raise(rb_eRuntimeError, "Channel exec failed (%d)", ret);
@@ -119,7 +122,7 @@ static VALUE channel_read(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  count = libssh2_channel_read(m_channel->libssh2_channel, buffer, sizeof(buffer));
+  BLOCK(count = libssh2_channel_read(m_channel->libssh2_channel, buffer, sizeof(buffer)));
 
   if (count > 0) {
     return rb_str_new((const char *) &buffer, count);
@@ -138,7 +141,7 @@ static VALUE channel_write(VALUE self, VALUE string)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  libssh2_channel_write(m_channel->libssh2_channel, StringValuePtr(string), RSTRING_LEN(string));
+  BLOCK(libssh2_channel_write(m_channel->libssh2_channel, StringValuePtr(string), RSTRING_LEN(string)));
 
   if (ret < 0) {
     rb_raise(rb_eRuntimeError, "Write error (%d)", ret);
@@ -154,7 +157,7 @@ static VALUE channel_close(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  ret = libssh2_channel_close(m_channel->libssh2_channel);
+  BLOCK(ret = libssh2_channel_close(m_channel->libssh2_channel));
 
   return INT2NUM(ret);
 }
@@ -175,7 +178,7 @@ static VALUE send_eof(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  ret = libssh2_channel_send_eof(m_channel->libssh2_channel);
+  BLOCK(ret = libssh2_channel_send_eof(m_channel->libssh2_channel));
 
   return Qtrue;
 }
@@ -187,7 +190,7 @@ static VALUE flush(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  ret = libssh2_channel_flush(m_channel->libssh2_channel);
+  BLOCK(ret = libssh2_channel_flush(m_channel->libssh2_channel));
 
   return Qtrue;
 }

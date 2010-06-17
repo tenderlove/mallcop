@@ -27,7 +27,7 @@ module MallCop
 
     it "works with commands ending in amp" do
       shell do |s|
-        assert_equal 'hello', s.sh("echo 'hello' ; echo 'foo' &")
+        assert_equal 'hello', s.sh("echo 'hello' ; sleep 1 &")
       end
     end
 

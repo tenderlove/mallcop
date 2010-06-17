@@ -4,6 +4,8 @@
 #include <ruby.h>
 #include <libssh2.h>
 
+#define BLOCK(stmt) while ((stmt) == LIBSSH2_ERROR_EAGAIN)
+
 extern VALUE rb_mMallCop;
 extern VALUE rb_cMallCopSession;
 extern VALUE rb_cMallCopChannel;
