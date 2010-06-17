@@ -191,6 +191,15 @@ static VALUE last_errmsg(VALUE self)
   return rb_str_new(errmsg, (long) errlen);
 }
 
+void mallcop_raise_last_error(MallCopSession *m_session, VALUE klass)
+{
+  char *errmsg;
+
+  libssh2_session_last_error(m_session->libssh2_session, &errmsg, NULL, 0);
+
+  rb_raise(klass, errmsg);
+}
+
 void init_mallcop_session()
 {
   rb_cMallCopSession = rb_define_class_under(rb_mMallCop, "Session", rb_cObject);

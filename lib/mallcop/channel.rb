@@ -8,7 +8,19 @@ module MallCop
 
     def read
       raise ChannelError, "The channel has been closed" unless @open
-      native_channel_read
+      retval = ERROR_EAGAIN
+      retval = read_nonblock until retval != ERROR_EAGAIN
+      retval
+    end
+
+    def read_nonblock
+      retval = native_channel_read
+
+      if Exception === retval
+        raise retval
+      end
+
+      retval
     end
 
     def write(cmd)

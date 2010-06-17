@@ -26,4 +26,6 @@ void init_mallcop_session();
 void mallcop_session_retain(MallCopSession *session);
 void mallcop_session_release(MallCopSession *session);
 
+void mallcop_raise_last_error(MallCopSession *m_session, VALUE klass);
+
 #endif

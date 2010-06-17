@@ -122,16 +122,16 @@ static VALUE channel_read(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  BLOCK(count = libssh2_channel_read(m_channel->libssh2_channel, buffer, sizeof(buffer)));
+  count = libssh2_channel_read(m_channel->libssh2_channel, buffer, sizeof(buffer));
 
-  if (count > 0) {
+  if ( count >= 0 ) {
     return rb_str_new((const char *) &buffer, count);
+  } else if ( count == LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(LIBSSH2_ERROR_EAGAIN);
   } else {
-    rb_raise(rb_eRuntimeError, "Read failed with (%d)", count);
+    mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
     return Qnil;
   }
-
-  return Qnil;
 }
 
 static VALUE channel_write(VALUE self, VALUE string)
