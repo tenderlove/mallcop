@@ -58,7 +58,8 @@ module MallCop
     end
 
     def request_pty(term)
-      native_request_pty(term)
+      block { native_request_pty(term) }
+      true
     end
 
     def shell

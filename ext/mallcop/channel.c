@@ -63,20 +63,14 @@ static VALUE request_pty(VALUE self, VALUE term)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  BLOCK(ret = libssh2_channel_request_pty(m_channel->libssh2_channel, StringValuePtr(term)));
+  ret = libssh2_channel_request_pty(m_channel->libssh2_channel, StringValuePtr(term));
 
-  if(ret) {
-    switch(ret) {
-      case LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED:
-        return Qfalse;
-        break;
-      default:
-        rb_raise(rb_eRuntimeError, "PTY request failed (%d)", ret);
-        break;
-    }
+  if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
+  } else {
+    mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+    return Qnil;
   }
-
-  return Qtrue;
 }
 
 static VALUE shell(VALUE self)
@@ -88,7 +82,7 @@ static VALUE shell(VALUE self)
 
   ret = libssh2_channel_shell(m_channel->libssh2_channel);
 
-  if ( ret == 0 || LIBSSH2_ERROR_EAGAIN ) {
+  if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
     return INT2FIX(ret);
   } else {
     mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
@@ -105,7 +99,7 @@ static VALUE channel_exec(VALUE self, VALUE command)
 
   ret = libssh2_channel_exec(m_channel->libssh2_channel, StringValuePtr(command));
 
-  if ( ret == 0 || LIBSSH2_ERROR_EAGAIN ) {
+  if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
     return INT2FIX(ret);
   } else {
     mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
