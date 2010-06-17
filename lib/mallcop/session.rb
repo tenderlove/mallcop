@@ -59,8 +59,10 @@ module MallCop
       native_disconnect(description)
     end
 
-    def io_select
-      select([socket], nil, nil, nil)
+    def io_select(write = false)
+      write ?
+        select([], [socket], nil, nil) :
+        select([socket], nil, nil, nil)
     end
 
   private

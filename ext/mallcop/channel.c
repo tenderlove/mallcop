@@ -145,13 +145,14 @@ static VALUE channel_write(VALUE self, VALUE string)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  BLOCK(libssh2_channel_write(m_channel->libssh2_channel, StringValuePtr(string), RSTRING_LEN(string)));
+  ret = libssh2_channel_write(m_channel->libssh2_channel, StringValuePtr(string), RSTRING_LEN(string));
 
-  if (ret < 0) {
-    rb_raise(rb_eRuntimeError, "Write error (%d)", ret);
+  if ( ret >= 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
   }
 
-  return Qtrue;
+  mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE channel_close(VALUE self)
