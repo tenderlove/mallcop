@@ -21,6 +21,7 @@ module MallCop
     end
 
     def close
+      return true unless @open
       case native_channel_close
       when 0
         true

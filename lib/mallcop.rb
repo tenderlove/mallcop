@@ -30,7 +30,11 @@ module MallCop
       raise ChannelError, "Could not authenticate user '#{username}'"
     end
 
-    yield session if block_given?
+    if block_given?
+      yield session
+      session.disconnect
+    end
+
     session
   end
 
