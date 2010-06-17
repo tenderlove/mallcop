@@ -3,13 +3,13 @@ require 'socket'
 module MallCop
   class Session
 
-    def self.start host, port
+    def self.start(host, port)
       session = new(host, port)
       session.start
       session
     end
 
-    def initialize host, port
+    def initialize(host, port)
       native_initialize
       native_set_blocking(0)
       @host = host
@@ -25,7 +25,7 @@ module MallCop
       raise ConnectionError, native_last_errmsg
     end
 
-    def authenticate username, options
+    def authenticate(username, options)
       allowed = authlist_for username
 
       attempted = []
@@ -73,20 +73,20 @@ module MallCop
       %w(publickey hostbased password)
     end
 
-    def authlist_for username
+    def authlist_for(username)
       native_userauth_list(username).split ','
     end
 
-    def authenticate_via_password username, options
+    def authenticate_via_password(username, options)
       res = native_userauth_password(username, options[:password])
       res == 0
     end
 
-    def authenticate_via_publickey username, options
+    def authenticate_via_publickey(username, options)
       # Not implemented yet
     end
     
-    def authenticate_via_hostbased username, options
+    def authenticate_via_hostbased(username, options)
       # Not implemented yet
     end
   end
