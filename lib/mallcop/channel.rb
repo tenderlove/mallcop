@@ -45,14 +45,8 @@ module MallCop
 
     def close
       return true unless @open
-      case native_channel_close
-      when 0
-        true
-      when ERROR_EAGAIN
-        Errno::EAGAIN
-      else
-        raise RuntimeError, "Something went wrong"
-      end
+      block { native_channel_close }
+      true
     ensure
       @open = false
     end
@@ -73,11 +67,13 @@ module MallCop
     end
 
     def send_eof
-      native_send_eof
+      block { native_send_eof }
+      true
     end
 
     def flush
-      native_flush
+      block { native_flush }
+      true
     end
 
   private

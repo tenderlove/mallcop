@@ -67,10 +67,10 @@ static VALUE request_pty(VALUE self, VALUE term)
 
   if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
     return INT2FIX(ret);
-  } else {
-    mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
-    return Qnil;
   }
+
+  mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE shell(VALUE self)
@@ -84,10 +84,10 @@ static VALUE shell(VALUE self)
 
   if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
     return INT2FIX(ret);
-  } else {
-    mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
-    return Qnil;
   }
+
+  mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE channel_exec(VALUE self, VALUE command)
@@ -101,10 +101,10 @@ static VALUE channel_exec(VALUE self, VALUE command)
 
   if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
     return INT2FIX(ret);
-  } else {
-    mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
-    return Qnil;
   }
+
+  mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE channel_read(VALUE self)
@@ -121,10 +121,10 @@ static VALUE channel_read(VALUE self)
     return rb_str_new((const char *) &buffer, count);
   } else if ( count == LIBSSH2_ERROR_EAGAIN ) {
     return INT2FIX(LIBSSH2_ERROR_EAGAIN);
-  } else {
-    mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
-    return Qnil;
   }
+
+  mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE channel_write(VALUE self, VALUE string)
@@ -151,9 +151,14 @@ static VALUE channel_close(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  BLOCK(ret = libssh2_channel_close(m_channel->libssh2_channel));
+  ret = libssh2_channel_close(m_channel->libssh2_channel);
 
-  return INT2NUM(ret);
+  if ( ret >= 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
+  }
+
+  mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE eof(VALUE self)
@@ -172,9 +177,14 @@ static VALUE send_eof(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  BLOCK(ret = libssh2_channel_send_eof(m_channel->libssh2_channel));
+  ret = libssh2_channel_send_eof(m_channel->libssh2_channel);
 
-  return Qtrue;
+  if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
+  }
+
+  mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE flush(VALUE self)
@@ -184,9 +194,14 @@ static VALUE flush(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  BLOCK(ret = libssh2_channel_flush(m_channel->libssh2_channel));
+  ret = libssh2_channel_flush(m_channel->libssh2_channel);
 
-  return Qtrue;
+  if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
+  }
+
+  mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 void init_mallcop_channel()
