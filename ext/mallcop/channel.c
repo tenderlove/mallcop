@@ -37,13 +37,15 @@ static VALUE initialize(VALUE self)
 
   Data_Get_Struct(session, MallCopSession, m_session);
 
-  do {
-    m_channel->libssh2_channel = libssh2_channel_open_session(m_session->libssh2_session);
-  } while ( !m_channel->libssh2_channel && libssh2_session_last_errno(m_session->libssh2_session) == LIBSSH2_ERROR_EAGAIN );
+  m_channel->libssh2_channel = libssh2_channel_open_session(m_session->libssh2_session);
 
   if ( !m_channel->libssh2_channel ) {
-    rb_raise(rb_eRuntimeError, "channel init failed");
-    return Qfalse;
+    if ( libssh2_session_last_errno(m_session->libssh2_session) == LIBSSH2_ERROR_EAGAIN ) {
+      return INT2FIX(LIBSSH2_ERROR_EAGAIN);
+    }
+
+    mallcop_raise_last_error(m_session, rb_eRuntimeError);
+    return Qnil;
   }
 
   // Initializing the libssh2 channel is successful, so we can associate

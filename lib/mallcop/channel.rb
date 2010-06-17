@@ -3,7 +3,12 @@ module MallCop
 
     def initialize(session)
       @session, @open = session, true
-      native_initialize
+
+      res = native_initialize
+      until res != ERROR_EAGAIN
+        @session.io_select
+        res = native_initialize
+      end
     end
 
     def read
