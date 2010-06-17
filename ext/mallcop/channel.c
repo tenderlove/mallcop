@@ -36,7 +36,6 @@ static VALUE initialize(VALUE self)
   }
 
   Data_Get_Struct(session, MallCopSession, m_session);
-  m_channel->m_session = m_session;
 
   do {
     m_channel->libssh2_channel = libssh2_channel_open_session(m_session->libssh2_session);
@@ -47,6 +46,9 @@ static VALUE initialize(VALUE self)
     return Qfalse;
   }
 
+  // Initializing the libssh2 channel is successful, so we can associate
+  // the session object with the channel object.
+  m_channel->m_session = m_session;
   mallcop_session_retain(m_session);
 
   return Qtrue;
