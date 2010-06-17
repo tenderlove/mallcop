@@ -70,7 +70,14 @@ module MallCop
     end
 
     def channel_exec(cmd)
-      native_channel_exec(cmd)
+      retval = native_channel_exec(cmd)
+
+      until retval != ERROR_EAGAIN
+        @session.io_select
+        retval = native_channel_exec(cmd)
+      end
+
+      retval
     end
 
     def send_eof

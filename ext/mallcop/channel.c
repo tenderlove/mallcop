@@ -109,13 +109,14 @@ static VALUE channel_exec(VALUE self, VALUE command)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  BLOCK(ret = libssh2_channel_exec(m_channel->libssh2_channel, StringValuePtr(command)));
+  ret = libssh2_channel_exec(m_channel->libssh2_channel, StringValuePtr(command));
 
-  if (ret) {
-    rb_raise(rb_eRuntimeError, "Channel exec failed (%d)", ret);
+  if ( ret == 0 || LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
+  } else {
+    mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+    return Qnil;
   }
-
-  return Qtrue;
 }
 
 static VALUE channel_read(VALUE self)
