@@ -86,20 +86,14 @@ static VALUE shell(VALUE self)
 
   Data_Get_Struct(self, MallCopChannel, m_channel);
 
-  BLOCK(ret = libssh2_channel_shell(m_channel->libssh2_channel));
+  ret = libssh2_channel_shell(m_channel->libssh2_channel);
 
-  if (ret) {
-    switch(ret) {
-      case LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED:
-        return Qfalse;
-        break;
-      default:
-        rb_raise(rb_eRuntimeError, "Shell request failed (%d)", ret);
-        break;
-    }
+  if ( ret == 0 || LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
+  } else {
+    mallcop_raise_last_error(m_channel->m_session, rb_eRuntimeError);
+    return Qnil;
   }
-
-  return Qtrue;
 }
 
 static VALUE channel_exec(VALUE self, VALUE command)

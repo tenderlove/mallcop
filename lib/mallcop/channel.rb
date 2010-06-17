@@ -4,11 +4,7 @@ module MallCop
     def initialize(session)
       @session, @open = session, true
 
-      res = native_initialize
-      until res != ERROR_EAGAIN
-        @session.io_select
-        res = native_initialize
-      end
+      block { native_initialize }
     end
 
     def read
@@ -66,18 +62,13 @@ module MallCop
     end
 
     def shell
-      native_shell
+      block { native_shell }
+      true
     end
 
     def channel_exec(cmd)
-      retval = native_channel_exec(cmd)
-
-      until retval != ERROR_EAGAIN
-        @session.io_select
-        retval = native_channel_exec(cmd)
-      end
-
-      retval
+      block { native_channel_exec(cmd) }
+      true
     end
 
     def send_eof
@@ -87,5 +78,19 @@ module MallCop
     def flush
       native_flush
     end
+
+  private
+
+    def block
+      retval = yield
+
+      until retval != ERROR_EAGAIN
+        @session.io_select
+        retval = yield
+      end
+
+      retval
+    end
+
   end
 end
