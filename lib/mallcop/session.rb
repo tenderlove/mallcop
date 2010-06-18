@@ -80,8 +80,7 @@ module MallCop
     end
 
     def authenticate_via_password(username, options)
-      res = native_userauth_password(username, options[:password])
-      res == 0
+      block { native_userauth_password(username, options[:password]) } == 0
     end
 
     def authenticate_via_publickey(username, options)

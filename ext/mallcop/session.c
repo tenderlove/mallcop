@@ -126,10 +126,24 @@ static VALUE userauth_password(VALUE self, VALUE user, VALUE password)
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  BLOCK(ret = libssh2_userauth_password(m_session->libssh2_session,
-                StringValuePtr(user), StringValuePtr(password)));
+  ret = libssh2_userauth_password(m_session->libssh2_session,
+            StringValuePtr(user), StringValuePtr(password));
 
-  return INT2NUM(ret);
+  if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
+  }
+
+  ret = libssh2_session_last_errno(m_session->libssh2_session);
+
+  switch (ret) {
+    case LIBSSH2_ERROR_PASSWORD_EXPIRED:
+    case LIBSSH2_ERROR_AUTHENTICATION_FAILED:
+      return INT2FIX(ret);
+      break;
+  }
+
+  mallcop_raise_last_error(m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE userauth_publickey_fromfile(VALUE self, VALUE user, VALUE public_key, VALUE private_key, VALUE password)
