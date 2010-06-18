@@ -73,9 +73,14 @@ static VALUE start(VALUE self, VALUE r_fd)
 
   Data_Get_Struct(self, MallCopSession, m_session);
 
-  BLOCK(ret = libssh2_session_startup(m_session->libssh2_session, fd));
+  ret = libssh2_session_startup(m_session->libssh2_session, fd);
 
-  return INT2FIX(ret);
+  if ( ret == 0 || ret == LIBSSH2_ERROR_EAGAIN ) {
+    return INT2FIX(ret);
+  }
+
+  mallcop_raise_last_error(m_session, rb_eRuntimeError);
+  return Qnil;
 }
 
 static VALUE hostkey_hash(VALUE self, VALUE hashtype)
@@ -189,15 +194,6 @@ static VALUE last_errmsg(VALUE self)
   libssh2_session_last_error(m_session->libssh2_session, &errmsg, &errlen, 0);
 
   return rb_str_new(errmsg, (long) errlen);
-}
-
-void mallcop_raise_last_error(MallCopSession *m_session, VALUE klass)
-{
-  char *errmsg;
-
-  libssh2_session_last_error(m_session->libssh2_session, &errmsg, NULL, 0);
-
-  rb_raise(klass, errmsg);
 }
 
 void init_mallcop_session()

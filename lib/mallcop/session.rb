@@ -17,12 +17,8 @@ module MallCop
     end
 
     def start
-      ret = native_start(socket.fileno)
-      if ret == 0
-        return true
-      end
-
-      raise ConnectionError, native_last_errmsg
+      block { native_start(socket.fileno) }
+      true
     end
 
     def authenticate(username, options)
@@ -94,6 +90,17 @@ module MallCop
     
     def authenticate_via_hostbased(username, options)
       # Not implemented yet
+    end
+
+    def block
+      retval = yield
+
+      until retval != ERROR_EAGAIN
+        io_select
+        retval = yield
+      end
+
+      retval
     end
   end
 end

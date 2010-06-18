@@ -2,6 +2,15 @@
 
 VALUE rb_mMallCop;
 
+void mallcop_raise_last_error(MallCopSession *m_session, VALUE klass)
+{
+  char *errmsg;
+
+  libssh2_session_last_error(m_session->libssh2_session, &errmsg, NULL, 0);
+
+  rb_raise(klass, errmsg);
+}
+
 void Init_mallcop()
 {
   int rc;
